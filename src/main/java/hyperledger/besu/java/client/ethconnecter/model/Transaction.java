@@ -1,4 +1,4 @@
-package hyperledgerbesu.java.client.hyperledgerbesuconnector.model;
+package hyperledger.besu.java.client.ethconnecter.model;
 
 public class Transaction {
 
