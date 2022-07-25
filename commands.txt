@@ -13,3 +13,5 @@ curl -H "Content-Type: application/json" -X POST -d '{"id":3,"recipientAddress":
 
 sudo lsof -i:8080
 sudo kill -9 `pid`
+
+sudo update-alternatives --config java
