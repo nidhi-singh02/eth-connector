@@ -11,3 +11,4 @@ Additionally, it can also provide event-handling to Kafka/Event-Hub topics.</p>
 
 ## Running Locally:-
 1. Download/Clone the repository and build the project using mvn clean install.
+2. Give file writing permissions to shell scripts inside the scripts/ folder using `chmod +x *filename.sh*`. For example, inside the scripts folder, use this command - `chmod +x setup.sh` to spin up the test network. 
