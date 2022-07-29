@@ -39,8 +39,8 @@ public class HelperModule {
   protected static HttpService httpService = new HttpService("http://RPC_SERVER:8545/");
   public static Web3j web3j = Web3j.build(httpService);
 
-  public static String getCounterSolidityBinary() throws Exception {
-    return load("Counter.bin");
+  public static String getSolidityBinary(String binaryName) throws Exception {
+    return load(binaryName+".bin");
   }
 
   public static String load(String filePath) throws URISyntaxException, IOException {

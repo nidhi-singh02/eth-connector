@@ -47,22 +47,16 @@ public class TransactionController {
     }
     return null;
   }
-  /**
-   * The Rest endpoint for decoding transaction by transaction(RLP encoded) in hexadecimal
-   *
-   * @return responseEntity ResponseEntity Transaction Response
-   */
+
+
+   //The Rest endpoint for decoding transaction by transaction(RLP encoded) in hexadecimal
   @GetMapping("/decode")
   public ResponseEntity<Object> decodeTransaction(
       @RequestParam("transaction_hexadecimal") @Validated String transactionHexString) {
     return new ResponseEntity<>(transactionService.decode(transactionHexString), HttpStatus.OK);
   }
 
-  /**
-   * The Rest endpoint for executing transaction which modify the state of the blockchain
-   *
-   * @return responseEntity ResponseEntity Transaction Response
-   */
+  //The Rest endpoint for executing transaction which modify the state of the blockchain
   @PostMapping("/execute")
   public ResponseEntity<Object> executeTransaction(
       BigInteger gasPrice, BigInteger gasLimit, String contractAddress, String functionName) {
@@ -71,12 +65,7 @@ public class TransactionController {
         HttpStatus.OK);
   }
 
-  /**
-   * The Rest endpoint for executing transaction which query the ledger, does not modiy the state of
-   * the blockchain
-   *
-   * @return responseEntity ResponseEntity Transaction Response
-   */
+  //The Rest endpoint for executing transaction which query the ledger, does not modify the state of the blockchain
   @PostMapping("/call")
   public ResponseEntity<Object> call(String contractAddress, String functionName) {
     return new ResponseEntity<>(

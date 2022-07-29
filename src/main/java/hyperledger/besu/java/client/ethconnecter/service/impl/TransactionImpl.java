@@ -18,16 +18,12 @@ import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.Log;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
-import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Numeric;
 
 @Service
 public class TransactionImpl implements TransactionService {
 
-  public static HttpService httpService = new HttpService("http://10.28.20.64:8545/");
-  protected static Web3j web3j = Web3j.build(httpService);
-
-  static EthSendTransaction validateTransaction(RawTransaction rawTransaction, Web3j web3j) {
+  static EthSendTransaction validateTransaction(RawTransaction rawTransaction, Web3j web3j) throws Exception {
     byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, HelperModule.CREDENTIALS);
     String hexMessage = Numeric.toHexString(signedMessage);
     System.out.println("hex Message: " + hexMessage);
@@ -40,11 +36,13 @@ public class TransactionImpl implements TransactionService {
     }
     if (ethSendTransaction.hasError()) {
       System.out.println(
-          "error: "
-              + ethSendTransaction.getError().getMessage()
-              + " code: "
-              + ethSendTransaction.getError().getCode());
-    }
+              "error: "
+                      + ethSendTransaction.getError().getMessage()
+                      + " code: "
+                      + ethSendTransaction.getError().getCode());
+
+    throw new Exception(ethSendTransaction.getError().getMessage());
+  }
     return ethSendTransaction;
   }
 
@@ -89,7 +87,12 @@ public class TransactionImpl implements TransactionService {
     RawTransaction rawTransaction =
         RawTransaction.createTransaction(
             nonce, gasPrice, gasLimit, contractAddress, encodedFunction);
-    EthSendTransaction ethSendTransaction = validateTransaction(rawTransaction, web3j);
+    EthSendTransaction ethSendTransaction = null;
+    try {
+      ethSendTransaction = validateTransaction(rawTransaction, HelperModule.web3j);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     String transactionHash = ethSendTransaction.getTransactionHash();
     System.out.println("transactionHash: " + transactionHash); // result is same as transaction hash
     System.out.println("raw response: " + ethSendTransaction.getRawResponse());
@@ -116,7 +119,6 @@ public class TransactionImpl implements TransactionService {
 
     // Log log = logs.get(0);
     System.out.println("logs" + logs + logs.size());
-
     return transactionDetails;
   }
 

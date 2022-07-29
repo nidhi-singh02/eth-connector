@@ -12,7 +12,7 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
 @Service
 public class ContractServiceImpl implements ContractService {
 
-  public String deployContract() {
+  public String deployContract(String binaryName) {
 
     BigInteger nonce = HelperModule.getNonce(HelperModule.CREDENTIALS.getAddress());
     BigInteger gasPrice = BigInteger.valueOf(1000);
@@ -27,12 +27,17 @@ public class ContractServiceImpl implements ContractService {
     try {
       rawTransaction =
           RawTransaction.createContractTransaction(
-              nonce, gasPrice, gasLimit, BigInteger.ZERO, HelperModule.getCounterSolidityBinary());
+              nonce, gasPrice, gasLimit, BigInteger.ZERO, HelperModule.getSolidityBinary(binaryName));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
     EthSendTransaction ethSendTransaction =
-        TransactionImpl.validateTransaction(rawTransaction, HelperModule.web3j);
+            null;
+    try {
+      ethSendTransaction = TransactionImpl.validateTransaction(rawTransaction, HelperModule.web3j);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     System.out.println("result: " + ethSendTransaction.getResult());
     String transactionHash = ethSendTransaction.getTransactionHash();
     System.out.println("transactionHash: " + transactionHash);

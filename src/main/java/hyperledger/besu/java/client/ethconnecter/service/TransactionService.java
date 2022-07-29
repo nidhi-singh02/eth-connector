@@ -7,10 +7,29 @@ import org.web3j.abi.datatypes.Type;
 
 public interface TransactionService {
 
+  /**
+   * Decoding transaction by transaction(RLP encoded) in hexadecimal
+   * @param transactionHex the transaction in hexadecimal format(RLP)
+   * @return the transaction details after decoding
+   */
   Map<String, String> decode(String transactionHex);
 
+  /**
+   * Execute function in the contract modifying the world state
+   * @param gasPrice the gas price for executing the transaction
+   * @param gasLimit the gas limit
+   * @param contractAddress the address at which contract is deployed
+   * @param functionName the name of the function in the smart contract
+   * @return the map containing transaction hash and block number
+   */
   Map<String, String> execute(
       BigInteger gasPrice, BigInteger gasLimit, String contractAddress, String functionName);
 
+  /**
+   * Call function to query the state
+   * @param contractAddress the address at which contract is deployed
+   * @param functionName the name of the function in the smart contract
+   * @return List containing the response from the contract
+   */
   List<Type> call(String contractAddress, String functionName);
 }
