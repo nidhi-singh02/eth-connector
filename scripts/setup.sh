@@ -95,7 +95,6 @@ gnome-terminal -- bash -c 'besu --data-path=data --genesis-file=../genesis.json 
 
 sleep 5
 enode=$(sed -n 's/.*Enode URL //p' enode.txt)
-# gnome-terminal -- bash -c "echo $enode && sleep 10"
 
 cd ..
 cd Node-2 || exit

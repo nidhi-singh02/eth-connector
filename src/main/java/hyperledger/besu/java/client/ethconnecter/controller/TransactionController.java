@@ -44,11 +44,4 @@ public class TransactionController {
     return null;
   }
 
-//  BigInteger nonce = BigInteger.valueOf(0);
-//  BigInteger gasPrice = BigInteger.valueOf(0);
-//  BigInteger gasLimit;
-//  String to;
-//  BigInteger value;
-//  String data;
-////  RawTransaction rawTransaction = new RawTransaction();
 }

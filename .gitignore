@@ -35,3 +35,6 @@ build/
 commands.txt
 docker.sh
 build.sh
+
+scripts/QBFT-Network
+scripts/enode.txt
