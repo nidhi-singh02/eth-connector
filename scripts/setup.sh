@@ -29,7 +29,6 @@ read -r -d '' FOLDERSTRUCTURE << EOM
         3 data
     2 Node-4
         3 data
-
 EOM
 
 
@@ -46,6 +45,12 @@ createFolderStructure $FOLDERSTRUCTURE
 # cd ./QBFT-Network
 # jq -n  '{  "genesis": {    "config": {       "chainId": 1337,      "londonBlock": 0,       "qbft": {         "blockperiodseconds": 2,         "epochlength": 30000,         "requesttimeoutseconds": 4       }     },     "nonce": "0x0",     "timestamp": "0x58ee40ba",     "gasLimit": "0x47b760",     "difficulty": "0x1",     "mixHash": "0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365",     "coinbase": "0x0000000000000000000000000000000000000000",     "alloc": {        "fe3b557e8fb62b89f4916b721be55ceb828dbd73": {           "privateKey": "8f2a55949038a9610f50fb23b5883af3b4ecb3c3bb792cbcefbd1542c692be63",           "comment": "private key and this comment are ignored.  In a real chain, the private key should NOT be stored",           "balance": "0xad78ebc5ac6200000"        },        "627306090abaB3A6e1400e9345bC60c78a8BEf57": {          "privateKey": "c87509a1c067bbde78beb793e6fa76530b6382a4c0241e5e4a9ec0a0f44dc0d3",          "comment": "private key and this comment are ignored.  In a real chain, the private key should NOT be stored",          "balance": "90000000000000000000000"        },        "f17f52151EbEF6C7334FAD080c5704D77216b732": {          "privateKey": "ae6ae8e5ccbfb04590405997ee2d52d2b330726137b875053c36d94e974d162f",          "comment": "private key and this comment are ignored.  In a real chain, the private key should NOT be stored",          "balance": "90000000000000000000000"        }       }  },  "blockchain": {    "nodes": {      "generate": true,        "count": 4    }  } }' > qbftConfigFile.json
 # cd ..
+function createQBFTConfigFile() {
+    jq ".genesis.config.chainId=$1 | .blockchain.nodes.count=4" template_qbftConfigFile.json > qbftConfigFile.json
+}
+read -p "Enter chainId [1337]: " chainId
+chainId=${chainId:-1337}
+createQBFTConfigFile "$chainId"
 cp -r qbftConfigFile.json ./QBFT-Network
 
 
@@ -61,7 +66,7 @@ cd ./QBFT-Network
 besu operator generate-blockchain-config --config-file=qbftConfigFile.json --to=networkFiles --private-key-file-name=key > networkLogs.txt
 
 
-# Step-4 | Copy the genesis file to the QBFT-Network directory
+# # Step-4 | Copy the genesis file to the QBFT-Network directory
 mv ./networkFiles/genesis.json .
 
 
