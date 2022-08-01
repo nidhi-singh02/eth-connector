@@ -13,7 +13,11 @@ import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.datatypes.Function;
 import org.web3j.abi.datatypes.Type;
-import org.web3j.crypto.*;
+import org.web3j.crypto.RawTransaction;
+import org.web3j.crypto.SignedRawTransaction;
+import org.web3j.crypto.TransactionDecoder;
+import org.web3j.crypto.TransactionEncoder;
+import org.web3j.crypto.Sign;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.Log;
@@ -23,7 +27,8 @@ import org.web3j.utils.Numeric;
 @Service
 public class TransactionImpl implements TransactionService {
 
-  static EthSendTransaction validateTransaction(RawTransaction rawTransaction, Web3j web3j) throws Exception {
+  static EthSendTransaction validateTransaction(RawTransaction rawTransaction, Web3j web3j)
+      throws Exception {
     byte[] signedMessage = TransactionEncoder.signMessage(rawTransaction, HelperModule.CREDENTIALS);
     String hexMessage = Numeric.toHexString(signedMessage);
     System.out.println("hex Message: " + hexMessage);
@@ -36,13 +41,13 @@ public class TransactionImpl implements TransactionService {
     }
     if (ethSendTransaction.hasError()) {
       System.out.println(
-              "error: "
-                      + ethSendTransaction.getError().getMessage()
-                      + " code: "
-                      + ethSendTransaction.getError().getCode());
+          "error: "
+              + ethSendTransaction.getError().getMessage()
+              + " code: "
+              + ethSendTransaction.getError().getCode());
 
-    throw new Exception(ethSendTransaction.getError().getMessage());
-  }
+      throw new Exception(ethSendTransaction.getError().getMessage());
+    }
     return ethSendTransaction;
   }
 

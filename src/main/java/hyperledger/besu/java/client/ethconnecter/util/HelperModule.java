@@ -29,18 +29,21 @@ public class HelperModule {
   private static final String PRIVATE_KEY_STRING = "PRIVATE_KEY";
   private static final String PUBLIC_KEY_STRING = "PUBLIC_KEY";
 
-  private static final BigInteger PRIVATE_KEY = Numeric.toBigInt(PRIVATE_KEY_STRING);
-  private static final BigInteger PUBLIC_KEY = Numeric.toBigInt(PUBLIC_KEY_STRING);
-  private static final ECKeyPair KEY_PAIR = new ECKeyPair(PRIVATE_KEY, PUBLIC_KEY);
+  private static final BigInteger PRIVATE_KEY =
+              Numeric.toBigInt(PRIVATE_KEY_STRING);
+  private static final BigInteger PUBLIC_KEY =
+              Numeric.toBigInt(PUBLIC_KEY_STRING);
+  private static final ECKeyPair KEY_PAIR =
+            new ECKeyPair(PRIVATE_KEY, PUBLIC_KEY);
   public static final Credentials CREDENTIALS = Credentials.create(KEY_PAIR);
 
   private static final int SLEEP_DURATION = 15000;
   private static final int ATTEMPTS = 30;
-  protected static HttpService httpService = new HttpService("http://RPC_SERVER:8545/");
+  private static HttpService httpService = new HttpService("http://RPC_SERVER:8545/");
   public static Web3j web3j = Web3j.build(httpService);
 
   public static String getSolidityBinary(String binaryName) throws Exception {
-    return load(binaryName+".bin");
+    return load(binaryName + ".bin");
   }
 
   public static String load(String filePath) throws URISyntaxException, IOException {
@@ -79,8 +82,8 @@ public class HelperModule {
     return transactionReceiptOptional.get();
   }
 
-  private static Optional<TransactionReceipt> getTransactionReceipt(
-      String transactionHash) throws Exception {
+  private static Optional<TransactionReceipt> getTransactionReceipt(String transactionHash)
+      throws Exception {
 
     Optional<TransactionReceipt> receiptOptional = sendTransactionReceiptRequest(transactionHash);
     for (int i = 0; i < ATTEMPTS; i++) {

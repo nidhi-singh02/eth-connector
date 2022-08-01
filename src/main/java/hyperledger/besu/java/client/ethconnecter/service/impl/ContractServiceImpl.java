@@ -27,12 +27,15 @@ public class ContractServiceImpl implements ContractService {
     try {
       rawTransaction =
           RawTransaction.createContractTransaction(
-              nonce, gasPrice, gasLimit, BigInteger.ZERO, HelperModule.getSolidityBinary(binaryName));
+              nonce,
+              gasPrice,
+              gasLimit,
+              BigInteger.ZERO,
+              HelperModule.getSolidityBinary(binaryName));
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    EthSendTransaction ethSendTransaction =
-            null;
+    EthSendTransaction ethSendTransaction = null;
     try {
       ethSendTransaction = TransactionImpl.validateTransaction(rawTransaction, HelperModule.web3j);
     } catch (Exception e) {
