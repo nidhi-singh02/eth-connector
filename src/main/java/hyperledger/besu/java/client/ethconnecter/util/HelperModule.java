@@ -39,7 +39,7 @@ public class HelperModule {
 
   private static final int SLEEP_DURATION = 15000;
   private static final int ATTEMPTS = 30;
-  private static HttpService httpService = new HttpService("http://RPC_SERVER:8545/");
+  private static final HttpService httpService = new HttpService("http://RPC_SERVER:8545/");
   public static Web3j web3j = Web3j.build(httpService);
 
   public static String getSolidityBinary(String binaryName) throws Exception {
@@ -53,7 +53,10 @@ public class HelperModule {
   }
 
   public static Function createContractFunction(String functionName) {
-    if (functionName.equals("inc")) {
+    /* TODO :  Make input and output parameters as generic to work with all function calls.
+     *  Remove this function hardcoding and make it generic
+    */
+    if (functionName.equals("inc") || functionName.equals("dec")) {
       return new Function(
           functionName,
           Collections.emptyList(),
@@ -64,7 +67,7 @@ public class HelperModule {
         Collections.emptyList(),
         Collections.singletonList(
             new TypeReference<
-                Uint>() {})); // Collections.singletonList(new TypeReference<Uint>() {}));
+                Uint>() {}));
     // Collections.singletonList(new Uint(BigInteger.valueOf(0)))
   }
 
@@ -108,7 +111,7 @@ public class HelperModule {
   }
 
   public static BigInteger getNonce(String address) {
-    EthGetTransactionCount ethGetTransactionCount = null;
+    EthGetTransactionCount ethGetTransactionCount ;
     try {
       ethGetTransactionCount =
           web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).sendAsync().get();

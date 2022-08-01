@@ -4,7 +4,6 @@ import hyperledger.besu.java.client.ethconnecter.model.Transaction;
 import hyperledger.besu.java.client.ethconnecter.service.TransactionService;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,20 +20,20 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/transaction")
 public class TransactionController {
 
-  @Autowired private TransactionService transactionService;
+  private TransactionService transactionService;
   private static final ArrayList<Transaction> transactionsArrayList = new ArrayList<>();
 
   static {
     Transaction transaction1 = new Transaction();
     transaction1.setId(1);
-    transaction1.setRecipientAddress("recepientAddress1");
+    transaction1.setRecipientAddress("recipientAddress1");
     transaction1.setSignature("signature1");
     transaction1.setData("data1");
     transactionsArrayList.add(transaction1);
 
     Transaction transaction2 = new Transaction();
     transaction2.setId(2);
-    transaction2.setRecipientAddress("recepientAddress2");
+    transaction2.setRecipientAddress("recipientAddress2");
     transaction2.setSignature("signature2");
     transaction2.setData("data2");
     transactionsArrayList.add(transaction2);

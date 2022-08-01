@@ -76,11 +76,8 @@ public class TransactionImpl implements TransactionService {
     }
 
     return transactionDetails;
-
-    //        byte[] encodedTransaction = TransactionEncoder.encode(rawTransaction);
-    //        BigInteger key = Sign.signedMessageToKey(encodedTransaction, signatureData);
-    //        System.out.println("Public key: " + key);
   }
+
 
   public Map<String, String> execute(
       BigInteger gasPrice, BigInteger gasLimit, String contractAddress, String functionName) {
@@ -92,7 +89,7 @@ public class TransactionImpl implements TransactionService {
     RawTransaction rawTransaction =
         RawTransaction.createTransaction(
             nonce, gasPrice, gasLimit, contractAddress, encodedFunction);
-    EthSendTransaction ethSendTransaction = null;
+    EthSendTransaction ethSendTransaction ;
     try {
       ethSendTransaction = validateTransaction(rawTransaction, HelperModule.web3j);
     } catch (Exception e) {

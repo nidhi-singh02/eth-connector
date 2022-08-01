@@ -35,7 +35,7 @@ public class ContractServiceImpl implements ContractService {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    EthSendTransaction ethSendTransaction = null;
+    EthSendTransaction ethSendTransaction;
     try {
       ethSendTransaction = TransactionImpl.validateTransaction(rawTransaction, HelperModule.web3j);
     } catch (Exception e) {
