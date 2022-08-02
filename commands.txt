@@ -15,3 +15,12 @@ sudo lsof -i:8080
 sudo kill -9 `pid`
 
 sudo update-alternatives --config java
+
+git remote add userb https://github.com/userb/name.git
+git fetch userb
+git checkout featurebranch
+[change and commit]
+git push userc featurebranch
+
+git branch -r
+

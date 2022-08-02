@@ -42,7 +42,7 @@ public class HelperModule {
   private static final HttpService httpService = new HttpService("http://RPC_SERVER:8545/");
   public static Web3j web3j = Web3j.build(httpService);
 
-  public static String getSolidityBinary(String binaryName) throws Exception {
+    public static String getSolidityBinary(String binaryName) throws Exception {
     return load(binaryName + ".bin");
   }
 

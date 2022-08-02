@@ -1,5 +1,7 @@
 package hyperledger.besu.java.client.ethconnecter.service.impl;
 
+import hyperledger.besu.java.client.ethconnecter.exception.ErrorCode;
+import hyperledger.besu.java.client.ethconnecter.exception.ServiceException;
 import hyperledger.besu.java.client.ethconnecter.service.ContractService;
 import hyperledger.besu.java.client.ethconnecter.util.HelperModule;
 import java.math.BigInteger;
@@ -33,13 +35,13 @@ public class ContractServiceImpl implements ContractService {
               BigInteger.ZERO,
               HelperModule.getSolidityBinary(binaryName));
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new ServiceException(ErrorCode.HYPERLEDGER_BESU_CREATE_RAW_TRANSACTION_ERROR, e.getMessage(), e);
     }
     EthSendTransaction ethSendTransaction;
     try {
       ethSendTransaction = TransactionImpl.validateTransaction(rawTransaction, HelperModule.web3j);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new ServiceException(ErrorCode.HYPERLEDGER_BESU_SEND_TRANSACTION_ERROR, e.getMessage(), e);
     }
     System.out.println("result: " + ethSendTransaction.getResult());
     String transactionHash = ethSendTransaction.getTransactionHash();
@@ -49,7 +51,7 @@ public class ContractServiceImpl implements ContractService {
     try {
       transactionReceipt = HelperModule.waitForTransactionReceipt(transactionHash);
     } catch (Exception e) {
-      throw new RuntimeException(e);
+      throw new ServiceException(ErrorCode.HYPERLEDGER_BESU_TRANSACTION_RECEIPT_ERROR, e.getMessage(), e);
     }
     if (Objects.equals(transactionReceipt.getTransactionHash(), transactionHash)) {
       System.out.println("Transaction hash matches");

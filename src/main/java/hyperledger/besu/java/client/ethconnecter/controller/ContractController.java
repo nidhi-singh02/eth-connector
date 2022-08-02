@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping("contract")
+@RequestMapping("/contract")
 public class ContractController {
 
   private ContractService contractService;
@@ -18,6 +18,7 @@ public class ContractController {
   // The Rest endpoint for deploying smart contract
   @PostMapping("/deploy")
   public ResponseEntity<String> deploy(@Validated String contractBinary) {
+    System.out.println(contractBinary);
     return new ResponseEntity<>(contractService.deployContract(contractBinary), HttpStatus.OK);
   }
 }
