@@ -1,13 +1,14 @@
 package hyperledger.besu.java.client.ethconnecter.service.impl;
 
-import ch.qos.logback.classic.Logger;
-import hyperledger.besu.java.client.ethconnecter.exception.BesuTransactionException;
 import hyperledger.besu.java.client.ethconnecter.exception.ErrorCode;
 import hyperledger.besu.java.client.ethconnecter.exception.ErrorConstants;
 import hyperledger.besu.java.client.ethconnecter.exception.ServiceException;
 import hyperledger.besu.java.client.ethconnecter.model.ClientResponseModel;
+import hyperledger.besu.java.client.ethconnecter.model.TransactionResponseModel;
 import hyperledger.besu.java.client.ethconnecter.service.TransactionService;
 import hyperledger.besu.java.client.ethconnecter.util.HelperModule;
+
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.SignatureException;
 import java.util.HashMap;
@@ -103,7 +104,7 @@ public class TransactionImpl implements TransactionService {
 //            new ClientResponseModel(ErrorConstants.NO_ERROR, resultString), HttpStatus.OK);
 //  }
 
-  public Map<String, String> decode(String transactionHex) {
+  public ResponseEntity<ClientResponseModel> decode(String transactionHex) {
     final RawTransaction rawTransaction = TransactionDecoder.decode(transactionHex);
     Map<String, String> transactionDetails = new HashMap<>();
     transactionDetails.put("type", String.valueOf(rawTransaction.getType()));
@@ -126,12 +127,13 @@ public class TransactionImpl implements TransactionService {
       }
       transactionDetails.put("chainID", String.valueOf(signedResult.getChainId()));
     }
-
-    return transactionDetails;
+    TransactionResponseModel resultObject = new TransactionResponseModel(transactionDetails);
+    return new ResponseEntity<>(
+            new ClientResponseModel(ErrorConstants.NO_ERROR, (Serializable) transactionDetails), HttpStatus.OK);
   }
 
-  public Map<String, String> execute(
-      BigInteger gasPrice, BigInteger gasLimit, String contractAddress, String functionName) {
+  public ResponseEntity<ClientResponseModel> execute(
+          BigInteger gasPrice, BigInteger gasLimit, String contractAddress, String functionName) {
     BigInteger nonce = HelperModule.getNonce(HelperModule.CREDENTIALS.getAddress());
     System.out.println("nonce: " + nonce);
     Function function = HelperModule.createContractFunction(functionName);
@@ -172,10 +174,13 @@ public class TransactionImpl implements TransactionService {
 
     // Log log = logs.get(0);
     System.out.println("logs" + logs + logs.size());
-    return transactionDetails;
+//    return transactionDetails;
+    TransactionResponseModel resultObject = new TransactionResponseModel(transactionDetails, null);
+    return new ResponseEntity<>(
+            new ClientResponseModel(ErrorConstants.NO_ERROR, (Serializable) resultObject), HttpStatus.OK);
   }
 
-  public List<Type> call(String contractAddress, String functionName) {
+  public ResponseEntity<ClientResponseModel> call(String contractAddress, String functionName) {
     Function function = HelperModule.createContractFunction(functionName);
     System.out.println("function: " + function.getName());
 
@@ -191,6 +196,8 @@ public class TransactionImpl implements TransactionService {
     System.out.println("responseValue: " + responseValue);
     System.out.println("uint: " + uint.size());
 
-    return uint;
+    TransactionResponseModel resultObject = new TransactionResponseModel(uint);
+    return new ResponseEntity<>(
+            new ClientResponseModel(ErrorConstants.NO_ERROR, (Serializable) resultObject), HttpStatus.OK);
   }
 }

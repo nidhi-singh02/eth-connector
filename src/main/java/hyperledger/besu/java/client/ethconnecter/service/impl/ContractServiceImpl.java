@@ -1,13 +1,17 @@
 package hyperledger.besu.java.client.ethconnecter.service.impl;
 
 import hyperledger.besu.java.client.ethconnecter.exception.ErrorCode;
+import hyperledger.besu.java.client.ethconnecter.exception.ErrorConstants;
 import hyperledger.besu.java.client.ethconnecter.exception.ServiceException;
+import hyperledger.besu.java.client.ethconnecter.model.ClientResponseModel;
 import hyperledger.besu.java.client.ethconnecter.service.ContractService;
 import hyperledger.besu.java.client.ethconnecter.util.HelperModule;
 import java.math.BigInteger;
 import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
@@ -19,7 +23,7 @@ public class ContractServiceImpl implements ContractService {
   BigInteger gasLimit;
   @Value("${gasPrice}")
   BigInteger gasPrice;
-  public String deployContract(String binaryName) {
+  public ResponseEntity<ClientResponseModel> deployContract(String binaryName) {
     BigInteger nonce = HelperModule.getNonce(HelperModule.CREDENTIALS.getAddress());
     try {
       System.out.println("nonce: " + nonce);
@@ -30,12 +34,13 @@ public class ContractServiceImpl implements ContractService {
     RawTransaction rawTransaction;
     try {
       rawTransaction =
-          RawTransaction.createContractTransaction(
+          RawTransaction.createContractTransaction( // requires a string
               nonce,
               gasPrice,
               gasLimit,
               BigInteger.ZERO,
-              HelperModule.getSolidityBinary(binaryName));
+//              HelperModule.getSolidityBinary(binaryName));
+              binaryName);
     } catch (Exception e) {
       throw new ServiceException(ErrorCode.HYPERLEDGER_BESU_CREATE_RAW_TRANSACTION_ERROR, e.getMessage(), e);
     }
@@ -61,6 +66,8 @@ public class ContractServiceImpl implements ContractService {
 
     String contractAddress = transactionReceipt.getContractAddress();
     System.out.println("contract is deployed at: " + contractAddress);
-    return contractAddress;
+    String resultString = contractAddress;
+    return new ResponseEntity<>(
+            new ClientResponseModel(ErrorConstants.NO_ERROR, resultString), HttpStatus.OK);
   }
 }

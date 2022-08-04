@@ -3,6 +3,9 @@ package hyperledger.besu.java.client.ethconnecter.service;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+
+import hyperledger.besu.java.client.ethconnecter.model.ClientResponseModel;
+import org.springframework.http.ResponseEntity;
 import org.web3j.abi.datatypes.Type;
 
 public interface TransactionService {
@@ -13,7 +16,7 @@ public interface TransactionService {
    * @param transactionHex the transaction in hexadecimal format(RLP)
    * @return the transaction details after decoding
    */
-  Map<String, String> decode(String transactionHex);
+  ResponseEntity<ClientResponseModel> decode(String transactionHex);
 
   /**
    * Execute function in the contract modifying the world state
@@ -24,7 +27,7 @@ public interface TransactionService {
    * @param functionName the name of the function in the smart contract
    * @return the map containing transaction hash and block number
    */
-  Map<String, String> execute(
+  ResponseEntity<ClientResponseModel> execute(
       BigInteger gasPrice, BigInteger gasLimit, String contractAddress, String functionName);
 
   /**
@@ -34,5 +37,5 @@ public interface TransactionService {
    * @param functionName the name of the function in the smart contract
    * @return List containing the response from the contract
    */
-  List<Type> call(String contractAddress, String functionName);
+  ResponseEntity<ClientResponseModel> call(String contractAddress, String functionName);
 }

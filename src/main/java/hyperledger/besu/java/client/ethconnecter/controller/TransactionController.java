@@ -3,6 +3,7 @@ package hyperledger.besu.java.client.ethconnecter.controller;
 import hyperledger.besu.java.client.ethconnecter.service.TransactionService;
 import java.math.BigInteger;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,8 @@ public class TransactionController {
 
 
 
-  private TransactionService transactionService;
+  @Autowired
+  TransactionService transactionService;
 
   // The Rest endpoint for decoding transaction by transaction(RLP encoded) in hexadecimal
   @GetMapping("/decode")

@@ -1,5 +1,8 @@
 package hyperledger.besu.java.client.ethconnecter.service;
 
+import hyperledger.besu.java.client.ethconnecter.model.ClientResponseModel;
+import org.springframework.http.ResponseEntity;
+
 public interface ContractService {
 
   /**
@@ -8,5 +11,5 @@ public interface ContractService {
    * @param contractBinary is the name of the contract binary
    * @return the address at which contract is deployed
    */
-  String deployContract(String contractBinary);
+  ResponseEntity<ClientResponseModel> deployContract(String contractBinary);
 }
