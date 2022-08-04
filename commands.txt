@@ -17,6 +17,15 @@ sudo kill -9 `pid`
 sudo update-alternatives --config java
 
 
+git remote add userb https://github.com/userb/name.git
+git fetch userb
+git checkout featurebranch
+[change and commit]
+git push userc featurebranch
+
+git branch -r
+
+
 jq -r '.name |= "adar"' qbftConfigFile.json > qbftConfigFile.json
 cp -r template_qbftConfigFile.json qbftConfigFile.json
 rm template_qbftConfigFile.json
