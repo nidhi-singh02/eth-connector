@@ -32,7 +32,7 @@ build/
 ### VS Code ###
 .vscode/
 
-commands.txt
+./commands.txt
 docker.sh
 build.sh
 

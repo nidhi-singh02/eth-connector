@@ -1,7 +1,0 @@
-2022-08-01 15:09:56.681+05:30 | main | INFO  | GenerateBlockchainConfig | Generating 4 nodes keys.
-2022-08-01 15:09:56.683+05:30 | main | INFO  | GenerateBlockchainConfig | Generating keypair for node 0.
-2022-08-01 15:09:56.713+05:30 | main | INFO  | GenerateBlockchainConfig | Generating keypair for node 1.
-2022-08-01 15:09:56.715+05:30 | main | INFO  | GenerateBlockchainConfig | Generating keypair for node 2.
-2022-08-01 15:09:56.718+05:30 | main | INFO  | GenerateBlockchainConfig | Generating keypair for node 3.
-2022-08-01 15:09:56.719+05:30 | main | INFO  | GenerateBlockchainConfig | Generating QBFT extra data.
-2022-08-01 15:09:56.725+05:30 | main | INFO  | GenerateBlockchainConfig | Writing genesis file.
