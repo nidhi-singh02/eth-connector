@@ -6,6 +6,8 @@ import hyperledger.besu.java.client.ethconnecter.service.ContractService;
 import hyperledger.besu.java.client.ethconnecter.util.HelperModule;
 import java.math.BigInteger;
 import java.util.Objects;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
@@ -13,12 +15,12 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
 
 @Service
 public class ContractServiceImpl implements ContractService {
-
+  @Value("${gasLimit}")
+  BigInteger gasLimit;
+  @Value("${gasPrice}")
+  BigInteger gasPrice;
   public String deployContract(String binaryName) {
-
     BigInteger nonce = HelperModule.getNonce(HelperModule.CREDENTIALS.getAddress());
-    BigInteger gasPrice = BigInteger.valueOf(1000);
-    BigInteger gasLimit = BigInteger.valueOf(70000);
     try {
       System.out.println("nonce: " + nonce);
     } catch (Exception e) {

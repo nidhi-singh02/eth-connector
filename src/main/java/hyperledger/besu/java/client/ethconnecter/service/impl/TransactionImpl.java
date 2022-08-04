@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,12 @@ import org.web3j.utils.Numeric;
 @Slf4j
 @Service
 public class TransactionImpl implements TransactionService {
+
+  @Value("${gasLimit}")
+  BigInteger gasLimit;
+  @Value("${gasPrice}")
+  BigInteger gasPrice;
+
 
   static EthSendTransaction validateTransaction(RawTransaction rawTransaction, Web3j web3j)
       throws Exception {
@@ -132,7 +139,7 @@ public class TransactionImpl implements TransactionService {
 
     RawTransaction rawTransaction =
         RawTransaction.createTransaction(
-            nonce, gasPrice, gasLimit, contractAddress, encodedFunction);
+            nonce, this.gasPrice, this.gasLimit, contractAddress, encodedFunction);
     EthSendTransaction ethSendTransaction ;
     try {
       ethSendTransaction = validateTransaction(rawTransaction, HelperModule.web3j);
