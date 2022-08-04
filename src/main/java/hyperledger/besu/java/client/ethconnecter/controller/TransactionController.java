@@ -2,18 +2,23 @@ package hyperledger.besu.java.client.ethconnecter.controller;
 
 import hyperledger.besu.java.client.ethconnecter.service.TransactionService;
 import java.math.BigInteger;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/transactions")
 public class TransactionController {
+
+  @Value("${gasPrice}")
+  BigInteger gasPrice;
+  @Value("${gasLimit}")
+  BigInteger gasLimit;
+
+
 
   private TransactionService transactionService;
 
@@ -27,9 +32,9 @@ public class TransactionController {
   // The Rest endpoint for executing transaction which modify the state of the blockchain
   @PostMapping("/execute")
   public ResponseEntity<Object> executeTransaction(
-      BigInteger gasPrice, BigInteger gasLimit, String contractAddress, String functionName) {
+          @RequestHeader String contractAddress, @RequestHeader String functionName) {
     return new ResponseEntity<>(
-        transactionService.execute(gasPrice, gasLimit, contractAddress, functionName),
+        transactionService.execute(this.gasPrice, this.gasLimit, contractAddress, functionName),
         HttpStatus.OK);
   }
 

@@ -10,7 +10,7 @@ docker exec -it `containter-name` bash
 curl http://localhost:8080/transactions/1
 curl -H "Content-Type: application/json" -X POST -d '{"id":3,"recipientAddress":"recepientAddress3","signature":"signature3","data":"data3","gasLimit":0,"maxPriorityFeePerGas":0,"maxFeePerGas":0}' http://localhost:8080/transactions
 
-
+sudo service tomcat7 stop
 sudo lsof -i:8080
 sudo kill -9 `pid`
 
@@ -36,3 +36,4 @@ jq ".genesis.config.chainId=$1 | .blockchain.nodes.count=4" template_qbftConfigF
 
 
 
+git remote show origin
