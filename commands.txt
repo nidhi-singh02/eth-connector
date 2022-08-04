@@ -16,6 +16,7 @@ sudo kill -9 `pid`
 
 sudo update-alternatives --config java
 
+
 git remote add userb https://github.com/userb/name.git
 git fetch userb
 git checkout featurebranch
@@ -23,4 +24,15 @@ git checkout featurebranch
 git push userc featurebranch
 
 git branch -r
+
+
+jq -r '.name |= "adar"' qbftConfigFile.json > qbftConfigFile.json
+cp -r template_qbftConfigFile.json qbftConfigFile.json
+rm template_qbftConfigFile.json
+
+
+jq '.genesis.config.chainId=1338 | .blockchain.nodes.count=5' template_qbftConfigFile.json > qbftConfigFile.json
+jq ".genesis.config.chainId=$1 | .blockchain.nodes.count=4" template_qbftConfigFile.json > qbftConfigFile.json
+
+
 

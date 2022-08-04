@@ -40,4 +40,5 @@ public class TransactionController {
     return new ResponseEntity<>(
         transactionService.call(contractAddress, functionName), HttpStatus.OK);
   }
+
 }
