@@ -9,6 +9,9 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ScheduledExecutorService;
+
+import io.reactivex.Flowable;
 import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Function;
@@ -16,11 +19,12 @@ import org.web3j.abi.datatypes.Uint;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.protocol.Web3j;
+import org.web3j.protocol.Web3jService;
+import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.JsonRpc2_0Web3j;
 import org.web3j.protocol.core.methods.request.Transaction;
-import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
-import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
-import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.core.methods.response.*;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Numeric;
 
@@ -30,11 +34,11 @@ public class HelperModule {
   private static final String PUBLIC_KEY_STRING = "PUBLIC_KEY";
 
   private static final BigInteger PRIVATE_KEY =
-              Numeric.toBigInt(PRIVATE_KEY_STRING);
+          Numeric.toBigInt(PRIVATE_KEY_STRING);
   private static final BigInteger PUBLIC_KEY =
-              Numeric.toBigInt(PUBLIC_KEY_STRING);
+          Numeric.toBigInt(PUBLIC_KEY_STRING);
   private static final ECKeyPair KEY_PAIR =
-            new ECKeyPair(PRIVATE_KEY, PUBLIC_KEY);
+          new ECKeyPair(PRIVATE_KEY, PUBLIC_KEY);
   public static final Credentials CREDENTIALS = Credentials.create(KEY_PAIR);
 
   private static final int SLEEP_DURATION = 15000;
@@ -42,7 +46,14 @@ public class HelperModule {
   private static final HttpService httpService = new HttpService("http://RPC_SERVER:8545/");
   public static Web3j web3j = Web3j.build(httpService);
 
-    public static String getSolidityBinary(String binaryName) throws Exception {
+  public static ScheduledExecutorService scheduledExecutorService;
+  private static final long POLLING_INTERVAL = 1000;
+  public static Web3jService web3jService;
+  public static JsonRpc2_0Web3j web3jRx = new JsonRpc2_0Web3j(web3jService, POLLING_INTERVAL, scheduledExecutorService);
+
+
+
+  public static String getSolidityBinary(String binaryName) throws Exception {
     return load(binaryName + ".bin");
   }
 
@@ -55,27 +66,28 @@ public class HelperModule {
   public static Function createContractFunction(String functionName) {
     /* TODO :  Make input and output parameters as generic to work with all function calls.
      *  Remove this function hardcoding and make it generic
-    */
+     */
     if (functionName.equals("inc") || functionName.equals("dec")) {
       return new Function(
-          functionName,
-          Collections.emptyList(),
-          Collections.emptyList()); // Collections.singletonList(new TypeReference<Uint>() {}));
+              functionName,
+              Collections.emptyList(),
+              Collections.emptyList()); // Collections.singletonList(new TypeReference<Uint>() {}));
     }
     return new Function(
-        functionName,
-        Collections.emptyList(),
-        Collections.singletonList(
-            new TypeReference<
-                Uint>() {}));
+            functionName,
+            Collections.emptyList(),
+            Collections.singletonList(
+                    new TypeReference<
+                            Uint>() {
+                    }));
     // Collections.singletonList(new Uint(BigInteger.valueOf(0)))
   }
 
   public static TransactionReceipt waitForTransactionReceipt(String transactionHash)
-      throws Exception {
+          throws Exception {
 
     Optional<TransactionReceipt> transactionReceiptOptional =
-        getTransactionReceipt(transactionHash);
+            getTransactionReceipt(transactionHash);
 
     if (!transactionReceiptOptional.isPresent()) {
       System.out.println("Transaction receipt not generated after " + ATTEMPTS + " attempts");
@@ -86,7 +98,7 @@ public class HelperModule {
   }
 
   private static Optional<TransactionReceipt> getTransactionReceipt(String transactionHash)
-      throws Exception {
+          throws Exception {
 
     Optional<TransactionReceipt> receiptOptional = sendTransactionReceiptRequest(transactionHash);
     for (int i = 0; i < ATTEMPTS; i++) {
@@ -103,18 +115,18 @@ public class HelperModule {
   }
 
   private static Optional<TransactionReceipt> sendTransactionReceiptRequest(String transactionHash)
-      throws Exception {
+          throws Exception {
     EthGetTransactionReceipt transactionReceipt =
-        web3j.ethGetTransactionReceipt(transactionHash).sendAsync().get();
+            web3j.ethGetTransactionReceipt(transactionHash).sendAsync().get();
 
     return transactionReceipt.getTransactionReceipt();
   }
 
   public static BigInteger getNonce(String address) {
-    EthGetTransactionCount ethGetTransactionCount ;
+    EthGetTransactionCount ethGetTransactionCount;
     try {
       ethGetTransactionCount =
-          web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).sendAsync().get();
+              web3j.ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).sendAsync().get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
     }
@@ -122,20 +134,54 @@ public class HelperModule {
   }
 
   public static String callSmartContractFunction(Function function, String contractAddress)
-      throws Exception {
+          throws Exception {
     String encodedFunction = FunctionEncoder.encode(function);
     org.web3j.protocol.core.methods.response.EthCall response =
-        web3j
-            .ethCall(
-                Transaction.createEthCallTransaction(
-                    CREDENTIALS.getAddress(), contractAddress, encodedFunction),
-                DefaultBlockParameterName.LATEST)
-            .sendAsync()
-            .get();
+            web3j
+                    .ethCall(
+                            Transaction.createEthCallTransaction(
+                                    CREDENTIALS.getAddress(), contractAddress, encodedFunction),
+                            DefaultBlockParameterName.LATEST)
+                    .sendAsync()
+                    .get();
     System.out.println("response: " + response + " " + response.getRawResponse());
     System.out.println("error: " + response.getError());
     System.out.println("result: " + response.getResult());
 
     return response.getValue();
   }
+
+  /**
+   * Create an Flowable to emit block hashes.
+   *
+   * @return a {@link Flowable} instance that emits all new block hashes as new blocks are created
+   *     on the blockchain
+   */
+//  public static Flowable<String> emitBlockHashes(long pollingInterval) {
+//    return web3jRx.ethBlockHashFlowable(pollingInterval);
+//  }
+
+//  public static Flowable<EthBlock> eventsFromSpecificBlock(DefaultBlockParameter block) {
+//    Flowable<EthBlock> events = web3jRx.
+//  }
+
+  public static Flowable<EthBlock> replayPastBlocks(DefaultBlockParameter startBlock,
+                                                    boolean fullTransactionObjects) {
+    return web3jRx.replayPastBlocksFlowable(startBlock, fullTransactionObjects);
+  }
+
+  /**
+   * Create an {@link Flowable} instance that emits newly created blocks on the blockchain.
+   *
+   * @param fullTransactionObjects if true, provides transactions embedded in blocks, otherwise
+   *                               transaction hashes
+   * @return a {@link Flowable} instance that emits all new blocks as they are added to the
+   * blockchain
+   */
+  public static Flowable<EthBlock> emitNewlyCreatedBlocks(boolean fullTransactionObjects) {
+    return web3jRx.blockFlowable(fullTransactionObjects);
+  }
+
+
+
 }
