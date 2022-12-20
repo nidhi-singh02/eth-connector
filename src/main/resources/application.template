@@ -1,0 +1,42 @@
+spring:
+  profiles.active: local
+
+management:
+  health.db.enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: refresh
+---
+springdoc:
+  version: 1.0.0
+  swagger-ui:
+    url: /open-api.yml
+  api-docs:
+    enabled: false
+spring:
+  profiles: local
+besu:
+  rpcEndpoints:
+    - http://localhost:8545
+  wallet:
+    path: walletfile
+    password: abcd
+  gasPrice: 1000
+  gasLimit: 70000
+  client:
+    rest:
+      apikey: xyz
+kafka:
+  integration-points:
+    -
+      brokerHost: localhost:9093
+      groupId: besu-consumer
+      topic: besu-integration-topic1
+    -
+      brokerHost: localhost:9094
+      groupId: besu-consumer
+      topic: hlf-integration-topic2
+  event-listener:
+    brokerHost: localhost:9093
+    topic: besu-offchain-topic

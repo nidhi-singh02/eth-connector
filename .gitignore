@@ -1,17 +1,5 @@
 HELP.md
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
 
 ### IntelliJ IDEA ###
 .idea
@@ -19,26 +7,5 @@ target/
 *.iml
 *.ipr
 
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
 ### VS Code ###
 .vscode/
-
-./commands.txt
-docker.sh
-build.sh
-
-
-./contracts
-
-scripts/QBFT-Network
-scripts/enode.txt
-src/main/java/hyperledger/besu/java/client/ethconnecter/util/test.java
