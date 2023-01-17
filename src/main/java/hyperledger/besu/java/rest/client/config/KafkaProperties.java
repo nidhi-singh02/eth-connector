@@ -19,6 +19,15 @@ import org.springframework.context.annotation.Configuration;
 @RefreshScope
 public class KafkaProperties {
 
+  static final String KAFKA_SECURITY_PROTOCOL_KEY = "security.protocol";
+  static final String KAFKA_SECURITY_PROTOCOL_VALUE = "SASL_SSL";
+  static final String KAFKA_SASL_MECHANISM_KEY = "sasl.mechanism";
+  static final String KAFKA_SASL_MECHANISM_VALUE = "PLAIN";
+  static final String KAFKA_SASL_JASS_ENDPOINT_KEY = "sasl.jaas.config";
+  static final Integer KAFKA_INTG_MAX_POLL_INTERVAL = 500000;
+  static final Integer KAFKA_INTG_MAX_POLL_RECORDS = 100;
+  static final Integer KAFKA_INTG_SESSION_TIMEOUT = 30000;
+
   private List<Consumer> integrationPoints;
   private Producer eventListener;
 

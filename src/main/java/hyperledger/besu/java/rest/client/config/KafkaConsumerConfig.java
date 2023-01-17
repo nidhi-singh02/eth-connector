@@ -13,6 +13,15 @@ import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_INTG_MAX_POLL_INTERVAL;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_INTG_MAX_POLL_RECORDS;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_INTG_SESSION_TIMEOUT;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_JASS_ENDPOINT_KEY;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_MECHANISM_KEY;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_MECHANISM_VALUE;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SECURITY_PROTOCOL_KEY;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SECURITY_PROTOCOL_VALUE;
+
 /*
  * This class is the configuration class for setting the properties for the kafka consumers.
  *
@@ -32,22 +41,22 @@ public class KafkaConsumerConfig {
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
     props.put(
-        ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, FabricClientConstants.KAFKA_INTG_SESSION_TIMEOUT);
+        ConsumerConfig.SESSION_TIMEOUT_MS_CONFIG, KAFKA_INTG_SESSION_TIMEOUT);
     props.put(
         ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG,
-        FabricClientConstants.KAFKA_INTG_MAX_POLL_INTERVAL);
+        KAFKA_INTG_MAX_POLL_INTERVAL);
     props.put(
-        ConsumerConfig.MAX_POLL_RECORDS_CONFIG, FabricClientConstants.KAFKA_INTG_MAX_POLL_RECORDS);
+        ConsumerConfig.MAX_POLL_RECORDS_CONFIG, KAFKA_INTG_MAX_POLL_RECORDS);
     // Azure event-hub config
     if (StringUtils.isNotEmpty(kafkaConsumerProperties.getSaslJaasConfig())) {
       props.put(
-          FabricClientConstants.KAFKA_SECURITY_PROTOCOL_KEY,
-          FabricClientConstants.KAFKA_SECURITY_PROTOCOL_VALUE);
+          KAFKA_SECURITY_PROTOCOL_KEY,
+          KAFKA_SECURITY_PROTOCOL_VALUE);
       props.put(
-          FabricClientConstants.KAFKA_SASL_MECHANISM_KEY,
-          FabricClientConstants.KAFKA_SASL_MECHANISM_VALUE);
+          KAFKA_SASL_MECHANISM_KEY,
+          KAFKA_SASL_MECHANISM_VALUE);
       props.put(
-          FabricClientConstants.KAFKA_SASL_JASS_ENDPOINT_KEY,
+          KAFKA_SASL_JASS_ENDPOINT_KEY,
           kafkaConsumerProperties.getSaslJaasConfig());
     }
 
