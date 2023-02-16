@@ -9,18 +9,22 @@ import org.springframework.stereotype.Service;
 @Service
 public class BlockEventListener implements Runnable {
 
-    @Autowired private EthConfig ethConfig;
+  @Autowired private EthConfig ethConfig;
 
-    @Override
-    public void run() {
-        // TODO: Improve the logic to include all nodes from the network
-        // get events with all transactions data
-        ethConfig.getWeb3jList().get(0).blockFlowable(true)
-                .subscribe(ethBlock -> {
-                    // consume the block and send it
-                    // TODO: send this in a Kafka message
-                    log.info("Block: {}", ethBlock.getBlock());
-                    log.info("Block Result: {}", ethBlock.getResult());
-                });
-    }
+  @Override
+  public void run() {
+    // TODO: Improve the logic to include all nodes from the network
+    // get events with all transactions data
+    ethConfig
+        .getWeb3jList()
+        .get(0)
+        .blockFlowable(true)
+        .subscribe(
+            ethBlock -> {
+              // consume the block and send it
+              // TODO: send this in a Kafka message
+              log.info("Block: {}", ethBlock.getBlock());
+              log.info("Block Result: {}", ethBlock.getResult());
+            });
+  }
 }

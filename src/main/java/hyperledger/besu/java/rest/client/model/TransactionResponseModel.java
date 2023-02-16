@@ -1,32 +1,36 @@
 package hyperledger.besu.java.rest.client.model;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import lombok.Builder;
 import org.web3j.abi.datatypes.Type;
 
 public class TransactionResponseModel implements Serializable {
+  private List<TypedResponse> smartContractResponse;
+  private TransactionDetails transactionDetails;
 
-  public TransactionResponseModel(
-      Map<String, String> transactionDetails, String smartContractResponse) {
-    this.smartContractResponse = smartContractResponse;
-    this.transactionDetails = transactionDetails;
-    this.uint = null;
+  @Builder
+  static class TypedResponse {
+    private String type;
+    private Object value;
   }
 
-  public TransactionResponseModel(Map<String, String> transactionDetails) {
-    this.transactionDetails = transactionDetails;
-    this.smartContractResponse = null;
-    this.uint = null;
+  @Builder
+  static class TransactionDetails {
+    private String transactionHash;
+    private BigInteger blockNumber;
   }
 
-  public TransactionResponseModel(List<Type> uint) {
-    this.uint = uint;
-    this.smartContractResponse = null;
-    this.transactionDetails = null;
+  public TransactionResponseModel(final List<Type> readValues) {
+    // for each value that is read, convert to custom response
+    smartContractResponse = readValues.stream().map(value -> TypedResponse.builder().type(value.getTypeAsString()).value(value.getValue()).build()).collect(Collectors.toList());
   }
 
-  private Map<String, String> transactionDetails;
-  private String smartContractResponse;
-  private List<Type> uint;
+  public TransactionResponseModel(final String transactionHash, final BigInteger blockNumber, final List<Type> readValues) {
+    transactionDetails = TransactionDetails.builder().transactionHash(transactionHash).blockNumber(blockNumber).build();
+  }
 }

@@ -114,12 +114,100 @@
 			<artifactId>siesta-jackson</artifactId>
 			<version>1.7</version>
 		</dependency>
-        <dependency>
-            <groupId>com.walmart.compliance.foodsafety</groupId>
-            <artifactId>fspt-common</artifactId>
-            <version>0.0.18</version>
-        </dependency>
-    </dependencies>
+		<!-- https://mvnrepository.com/artifact/org.web3j/web3j-unit -->
+		<dependency>
+			<groupId>org.web3j</groupId>
+			<artifactId>web3j-unit</artifactId>
+			<version>4.9.4</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hyperledger.besu/plugin-api -->
+		<dependency>
+			<groupId>org.hyperledger.besu</groupId>
+			<artifactId>plugin-api</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hyperledger.besu.internal/besu -->
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>besu</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hyperledger.besu.internal/api -->
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>api</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hyperledger.besu.internal/config -->
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>config</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hyperledger.besu.internal/core -->
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>core</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.hyperledger.besu.internal/crypto -->
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>crypto</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>util</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>rlp</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>kvstore</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>metrics-core</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>trim</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>api</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu.internal</groupId>
+			<artifactId>config</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu</groupId>
+			<artifactId>bls12-381</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu</groupId>
+			<artifactId>secp256k1</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hyperledger.besu</groupId>
+			<artifactId>plugin-api</artifactId>
+			<version>21.7.2</version>
+		</dependency>
+	</dependencies>
 
 	<build>
 		<plugins>

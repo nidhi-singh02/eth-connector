@@ -1,5 +1,11 @@
 package hyperledger.besu.java.rest.client.config;
 
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_JASS_ENDPOINT_KEY;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_MECHANISM_KEY;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_MECHANISM_VALUE;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SECURITY_PROTOCOL_KEY;
+import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SECURITY_PROTOCOL_VALUE;
+
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -15,12 +21,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.core.ProducerFactory;
-
-import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_JASS_ENDPOINT_KEY;
-import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_MECHANISM_KEY;
-import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SASL_MECHANISM_VALUE;
-import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SECURITY_PROTOCOL_KEY;
-import static hyperledger.besu.java.rest.client.config.KafkaProperties.KAFKA_SECURITY_PROTOCOL_VALUE;
 
 /** This class is the configuration class for sending to Chaincode event to eventHub/Kafka Topic. */
 @Slf4j
@@ -44,15 +44,9 @@ public class KafkaProducerConfig {
     props.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, Boolean.FALSE);
     // Azure event-hub config
     if (StringUtils.isNotEmpty(kafkaProducerProperties.getSaslJaasConfig())) {
-      props.put(
-          KAFKA_SECURITY_PROTOCOL_KEY,
-          KAFKA_SECURITY_PROTOCOL_VALUE);
-      props.put(
-          KAFKA_SASL_MECHANISM_KEY,
-          KAFKA_SASL_MECHANISM_VALUE);
-      props.put(
-          KAFKA_SASL_JASS_ENDPOINT_KEY,
-          kafkaProducerProperties.getSaslJaasConfig());
+      props.put(KAFKA_SECURITY_PROTOCOL_KEY, KAFKA_SECURITY_PROTOCOL_VALUE);
+      props.put(KAFKA_SASL_MECHANISM_KEY, KAFKA_SASL_MECHANISM_VALUE);
+      props.put(KAFKA_SASL_JASS_ENDPOINT_KEY, kafkaProducerProperties.getSaslJaasConfig());
     }
 
     // Adding SSL configuration if Kafka Cluster is SSL secured

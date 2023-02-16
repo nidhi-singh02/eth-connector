@@ -21,8 +21,10 @@ public enum ErrorCode {
       6002, "HyperledgerBesu Create Raw Transaction Error"),
   HYPERLEDGER_BESU_TRANSACTION_RECEIPT_ERROR(6003, "Hyperledger Besu Transaction Receipt Error "),
   HYPERLEDGER_BESU_SIGNATURE_ERROR(6004, "Hyperledger Besu Signature Error "),
-  HYPERLEDGER_BESU_CALL_SMART_CONTRACT_ERROR(6004, "Hyperledger Besu Call Smart Contract Error "),
-  HYPERLEDGER_BESU_VALIDATE_TRANSACTION_ERROR(6004, "Hyperledger Besu Validate Transaction Error "),
+  HYPERLEDGER_BESU_CALL_SMART_CONTRACT_ERROR(6005, "Hyperledger Besu Call Smart Contract Error "),
+  HYPERLEDGER_BESU_VALIDATE_TRANSACTION_ERROR(6006, "Hyperledger Besu Validate Transaction Error "),
+  HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR(
+      6007, "No ABI definition found for the transaction"),
 
   HYPERLEDGER_BESU_NOT_SUPPORTED(8000, "In Hyperledger Besu this feature is not supported"),
 

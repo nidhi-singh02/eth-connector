@@ -10,12 +10,17 @@ public class EventServiceImpl implements EventService {
   @Autowired private EthConfig ethConfig;
 
   @Override
-  public void readBlock(
-      int blockNumber) {
-    ethConfig.getWeb3jList().get(0).replayPastBlocksFlowable(new DefaultBlockParameterNumber(blockNumber - 1), new DefaultBlockParameterNumber(blockNumber), true).subscribe(
+  public void readBlock(int blockNumber) {
+    ethConfig
+        .getWeb3jList()
+        .get(0)
+        .replayPastBlocksFlowable(
+            new DefaultBlockParameterNumber(blockNumber - 1),
+            new DefaultBlockParameterNumber(blockNumber),
+            true)
+        .subscribe(
             ethBlock -> {
               // process the block
-            }
-    );
+            });
   }
 }

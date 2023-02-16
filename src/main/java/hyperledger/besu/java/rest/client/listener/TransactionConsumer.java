@@ -1,15 +1,19 @@
 package hyperledger.besu.java.rest.client.listener;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hyperledger.besu.java.rest.client.exception.BesuTransactionException;
 import hyperledger.besu.java.rest.client.service.EventPublishService;
 import hyperledger.besu.java.rest.client.service.TransactionService;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
+import org.web3j.protocol.core.methods.response.AbiDefinition;
 
 /*
  * This class has the consumer logic for processing and adding transaction to fabric
@@ -18,8 +22,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class TransactionConsumer {
 
+  private static final String ABI_DEFINITION_LIST = "abi-definition-list";
   private static final String CONTRACT_ADDRESS = "contract-address";
   private static final String FUNCTION_NAME = "function-name";
+
+  @Autowired private ObjectMapper objectMapper;
 
   @Autowired private TransactionService transactionService;
 
@@ -46,6 +53,7 @@ public class TransactionConsumer {
 
     Header[] kafkaHeaders = message.headers().toArray();
 
+    String abiDefinitionList = "";
     String contractAddress = "";
     String transactionFunctionName = "";
     String transactionParams = "";
@@ -68,15 +76,23 @@ public class TransactionConsumer {
           case FUNCTION_NAME:
             transactionFunctionName = new String(msgHeader.value(), StandardCharsets.UTF_8);
             break;
+          case ABI_DEFINITION_LIST:
+            abiDefinitionList = new String(msgHeader.value(), StandardCharsets.UTF_8);
+            break;
           default:
             break;
         }
       }
 
+      // convert from string to the ABI definition list
+      List<AbiDefinition> abiDefinitions =
+          objectMapper.readValue(abiDefinitionList, new TypeReference<List<AbiDefinition>>() {});
+
       if (!contractAddress.isEmpty()
           && !transactionFunctionName.isEmpty()
           && !transactionParams.isEmpty()) {
-        transactionService.execute(contractAddress, transactionFunctionName, transactionParams);
+        transactionService.execute(
+            abiDefinitions, contractAddress, transactionFunctionName, transactionParams);
       }
       acknowledgment.acknowledge();
     } catch (BesuTransactionException e) {

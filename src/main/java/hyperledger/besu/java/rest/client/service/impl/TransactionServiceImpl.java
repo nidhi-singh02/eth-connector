@@ -1,5 +1,6 @@
 package hyperledger.besu.java.rest.client.service.impl;
 
+import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_SEND_TRANSACTION_ERROR;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_TRANSACTION_ERROR;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_TRANSACTION_RECEIPT_ERROR;
@@ -11,14 +12,16 @@ import hyperledger.besu.java.rest.client.exception.ErrorConstants;
 import hyperledger.besu.java.rest.client.exception.ServiceException;
 import hyperledger.besu.java.rest.client.model.ClientResponseModel;
 import hyperledger.besu.java.rest.client.model.TransactionResponseModel;
+import hyperledger.besu.java.rest.client.model.abi.AbiDefinitionWrapper;
 import hyperledger.besu.java.rest.client.service.TransactionService;
+import hyperledger.besu.java.rest.client.utils.AbiUtility;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-
-import hyperledger.besu.java.rest.client.util.HelperModule;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.web3j.abi.FunctionReturnDecoder;
@@ -27,6 +30,7 @@ import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.response.AbiDefinition;
 import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
@@ -62,7 +66,12 @@ public class TransactionServiceImpl implements TransactionService {
     EthGetTransactionCount ethGetTransactionCount;
     try {
       ethGetTransactionCount =
-              ethConfig.getWeb3jList().get(0).ethGetTransactionCount(address, DefaultBlockParameterName.LATEST).sendAsync().get();
+          ethConfig
+              .getWeb3jList()
+              .get(0)
+              .ethGetTransactionCount(address, DefaultBlockParameterName.LATEST)
+              .sendAsync()
+              .get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
     }
@@ -116,6 +125,9 @@ public class TransactionServiceImpl implements TransactionService {
     } catch (Exception e) {
       throw new BesuTransactionException(HYPERLEDGER_BESU_TRANSACTION_ERROR, "unable to ethcall");
     }
+    if (response.isReverted()) {
+      throw new BesuTransactionException(HYPERLEDGER_BESU_TRANSACTION_ERROR, "failed in ethcall");
+    }
     log.debug("response: {} raw response: {}", response, response.getRawResponse());
     log.debug("error: {}", response.getError());
     log.debug("result: {}", response.getResult());
@@ -124,7 +136,10 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Override
   public ClientResponseModel execute(
-      String contractAddress, String functionName, String... params) {
+      List<AbiDefinition> abiDefinitionList,
+      String contractAddress,
+      String functionName,
+      String... params) {
 
     // The flow should be
     // 1. To create the payload for transaction
@@ -165,18 +180,17 @@ public class TransactionServiceImpl implements TransactionService {
     List<Log> logs = transferTransactionReceipt.getLogs();
     log.debug("logs size: {} logs: {}", logs.size(), logs.size());
 
-    Map<String, String> transactionDetails = new HashMap<>();
-    transactionDetails.put("transactionHash", transactionHash);
-    transactionDetails.put(
-        "blockNumber", String.valueOf(transferTransactionReceipt.getBlockNumber()));
-
     TransactionResponseModel resultObject =
-        new TransactionResponseModel(transactionDetails, transferTransactionReceipt.toString());
+        new TransactionResponseModel(transactionHash, transferTransactionReceipt.getBlockNumber(), Collections.emptyList());
     return new ClientResponseModel(ErrorConstants.NO_ERROR, resultObject);
   }
 
   @Override
-  public ClientResponseModel read(String contractAddress, String functionName, String... params) {
+  public ClientResponseModel read(
+      List<AbiDefinition> abiDefinitionList,
+      String contractAddress,
+      String functionName,
+      String... params) {
 
     // The flow should be
     // 1. To create the payload for transaction
@@ -192,12 +206,24 @@ public class TransactionServiceImpl implements TransactionService {
             .gasLimit(BigInteger.valueOf(ethConfig.getEthProperties().getGasLimit()))
             .nonce(getNonce(credentials.getAddress()))
             .build();
+    // read the response of transaction
     String response = readTransaction(transaction);
-    List<Type> uint = FunctionReturnDecoder.decode(response, transaction.getOutputParams());
     log.info("responseValue: {} ", response);
 
+    // type map the response to the ABI definition
+    Optional<AbiDefinitionWrapper> abiDefinitionOptional =
+        AbiUtility.getAbiDefinitionFromFunctionName(abiDefinitionList, functionName);
+    if (!abiDefinitionOptional.isPresent()) {
+      throw new BesuTransactionException(
+          HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR,
+          "Unable to find the ABI definition, cannot read output");
+    }
+    AbiDefinitionWrapper abiDefinitionWrapper = abiDefinitionOptional.get();
+    List<Type> result =
+        FunctionReturnDecoder.decode(response, abiDefinitionWrapper.getOutputTypeReferences());
+
     // Store the result into a custom object variable
-    TransactionResponseModel resultObject = new TransactionResponseModel(uint);
+    TransactionResponseModel resultObject = new TransactionResponseModel(result);
     return new ClientResponseModel(ErrorConstants.NO_ERROR, resultObject);
   }
 
