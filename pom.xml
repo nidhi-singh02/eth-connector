@@ -2,6 +2,45 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+	<repositories>
+		<repository>
+			<id>besu-repo</id>
+			<url>https://hyperledger.jfrog.io/artifactory/besu-maven/</url>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>central2</id>
+			<url>https://repo1.maven.org/maven2/</url>
+		</repository>
+		<repository>
+			<id>spring-release</id>
+			<url>https://repo.spring.io/release</url>
+		</repository>
+		<repository>
+			<id>consensys</id>
+			<url>https://artifacts.consensys.net/public/maven/maven/</url>
+		</repository>
+		<repository>
+			<id>consensys-quorum-mainnet-launcher</id>
+			<url>https://artifacts.consensys.net/public/quorum-mainnet-launcher/maven/</url>
+			<releases>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>splunk-artifactory</id>
+			<name>Splunk Releases</name>
+			<url>https://splunk.jfrog.io/splunk/ext-releases-local</url>
+		</repository>
+	</repositories>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
@@ -127,6 +166,12 @@
 			<artifactId>plugin-api</artifactId>
 			<version>21.7.2</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.beust/klaxon -->
+		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>klaxon</artifactId>
+			<version>5.6</version>
+		</dependency>
 		<!-- https://mvnrepository.com/artifact/org.hyperledger.besu.internal/besu -->
 		<dependency>
 			<groupId>org.hyperledger.besu.internal</groupId>
@@ -178,34 +223,14 @@
 			<version>21.7.2</version>
 		</dependency>
 		<dependency>
-			<groupId>org.hyperledger.besu.internal</groupId>
-			<artifactId>trim</artifactId>
-			<version>21.7.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hyperledger.besu.internal</groupId>
-			<artifactId>api</artifactId>
-			<version>21.7.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hyperledger.besu.internal</groupId>
-			<artifactId>config</artifactId>
-			<version>21.7.2</version>
-		</dependency>
-		<dependency>
 			<groupId>org.hyperledger.besu</groupId>
 			<artifactId>bls12-381</artifactId>
-			<version>21.7.2</version>
+			<version>0.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hyperledger.besu</groupId>
 			<artifactId>secp256k1</artifactId>
-			<version>21.7.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.hyperledger.besu</groupId>
-			<artifactId>plugin-api</artifactId>
-			<version>21.7.2</version>
+			<version>0.7.1</version>
 		</dependency>
 	</dependencies>
 
