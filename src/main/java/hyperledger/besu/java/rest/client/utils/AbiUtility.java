@@ -2,6 +2,7 @@ package hyperledger.besu.java.rest.client.utils;
 
 import hyperledger.besu.java.rest.client.model.abi.AbiDefinitionWrapper;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.web3j.protocol.core.methods.response.AbiDefinition;
 
@@ -16,7 +17,9 @@ public class AbiUtility {
     return abiDefinitionList.stream()
         .filter(
             definition ->
-                definition.getType().equals(FUNCTION) && definition.getName().equals(functionName))
+                definition.getType().equals(FUNCTION)
+                    && Objects.nonNull(definition.getName())
+                    && definition.getName().equals(functionName))
         .map(AbiDefinitionWrapper::new)
         .findFirst();
   }

@@ -23,7 +23,7 @@ public class EthClientController {
       @RequestParam("abi_definition") @Validated List<AbiDefinition> abiDefinitionList,
       @RequestParam("transaction_contract_address") @Validated String contractAddress,
       @RequestParam("transaction_function_name") @Validated String functionName,
-      @RequestParam("transaction_params") @Validated String... params) {
+      @RequestParam("transaction_params") @Validated Object... params) {
     log.debug(
         "Write transaction contract: {}, function: {}, params: {}",
         contractAddress,
