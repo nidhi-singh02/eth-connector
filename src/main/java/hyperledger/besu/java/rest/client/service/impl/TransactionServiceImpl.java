@@ -1,6 +1,5 @@
 package hyperledger.besu.java.rest.client.service.impl;
 
-import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_SEND_TRANSACTION_ERROR;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_TRANSACTION_ERROR;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_TRANSACTION_RECEIPT_ERROR;
@@ -12,19 +11,13 @@ import hyperledger.besu.java.rest.client.exception.ErrorConstants;
 import hyperledger.besu.java.rest.client.exception.ServiceException;
 import hyperledger.besu.java.rest.client.model.ClientResponseModel;
 import hyperledger.besu.java.rest.client.model.TransactionResponseModel;
-import hyperledger.besu.java.rest.client.model.abi.AbiDefinitionWrapper;
 import hyperledger.besu.java.rest.client.service.TransactionService;
-import hyperledger.besu.java.rest.client.utils.AbiUtility;
 import java.math.BigInteger;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.web3j.abi.FunctionReturnDecoder;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
@@ -139,7 +132,7 @@ public class TransactionServiceImpl implements TransactionService {
       List<AbiDefinition> abiDefinitionList,
       String contractAddress,
       String functionName,
-      String... params) {
+      Object... params) {
 
     // The flow should be
     // 1. To create the payload for transaction
@@ -148,6 +141,7 @@ public class TransactionServiceImpl implements TransactionService {
     // Ref: https://docs.web3j.io/4.8.7/transactions/wallet_files/
     Transaction transaction =
         Transaction.builder()
+            .abiDefinitionList(abiDefinitionList)
             .contractAddress(contractAddress)
             .functionName(functionName)
             .params(params)
@@ -181,7 +175,8 @@ public class TransactionServiceImpl implements TransactionService {
     log.debug("logs size: {} logs: {}", logs.size(), logs.size());
 
     TransactionResponseModel resultObject =
-        new TransactionResponseModel(transactionHash, transferTransactionReceipt.getBlockNumber(), Collections.emptyList());
+        new TransactionResponseModel(
+            transactionHash, transferTransactionReceipt.getBlockNumber(), Collections.emptyList());
     return new ClientResponseModel(ErrorConstants.NO_ERROR, resultObject);
   }
 
@@ -199,6 +194,7 @@ public class TransactionServiceImpl implements TransactionService {
     // Ref: https://docs.web3j.io/4.8.7/transactions/wallet_files/
     Transaction transaction =
         Transaction.builder()
+            .abiDefinitionList(abiDefinitionList)
             .contractAddress(contractAddress)
             .functionName(functionName)
             .params(params)
@@ -210,17 +206,7 @@ public class TransactionServiceImpl implements TransactionService {
     String response = readTransaction(transaction);
     log.info("responseValue: {} ", response);
 
-    // type map the response to the ABI definition
-    Optional<AbiDefinitionWrapper> abiDefinitionOptional =
-        AbiUtility.getAbiDefinitionFromFunctionName(abiDefinitionList, functionName);
-    if (!abiDefinitionOptional.isPresent()) {
-      throw new BesuTransactionException(
-          HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR,
-          "Unable to find the ABI definition, cannot read output");
-    }
-    AbiDefinitionWrapper abiDefinitionWrapper = abiDefinitionOptional.get();
-    List<Type> result =
-        FunctionReturnDecoder.decode(response, abiDefinitionWrapper.getOutputTypeReferences());
+    List<Type> result = transaction.getDecodedFunction(response);
 
     // Store the result into a custom object variable
     TransactionResponseModel resultObject = new TransactionResponseModel(result);

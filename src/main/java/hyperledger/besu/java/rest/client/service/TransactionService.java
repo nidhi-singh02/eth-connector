@@ -11,7 +11,7 @@ public interface TransactionService {
       List<AbiDefinition> abiDefinitionList,
       String contractAddress,
       String functionName,
-      String... params);
+      Object... params);
 
   /** */
   ClientResponseModel read(
