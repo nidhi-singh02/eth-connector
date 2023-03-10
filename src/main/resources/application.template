@@ -40,3 +40,7 @@ kafka:
   event-listener:
     brokerHost: localhost:9093
     topic: besu-offchain-topic
+events:
+  block: true
+  smartContract:
+  - "0x6Ba72e179b7137B4E844A90af14f9Efb0bE3C11d"

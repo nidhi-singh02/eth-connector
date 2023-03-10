@@ -11,7 +11,8 @@ public enum ErrorCode {
   NO_EVENTS_FOUND(1001, "Not able to find any events for the passed input."),
   NOT_SUPPORTED(1002, "Operation passed not supported."),
   VALIDATION_FAILED(1003, "The data passed fails validation from the resource."),
-  INITIALIZATION_FAILED(1004, "Failed to bootstrap the application"),
+  INITIALIZATION_FAILED(1004, "Failed to bootstrap the applciation"),
+  OPERATION_NOT_SUPPORTED(1005, "Operation not supported"),
 
   HYPERLEDGER_BESU_CONNECTION_ERROR(5000, "Hyperledger Besu connection related error"),
 
@@ -33,7 +34,9 @@ public enum ErrorCode {
 
   NOT_DEFINED(
       9999,
-      "The exception is not a BaseException OR error code is not yet defined by the developer");
+      "The exception is not a BaseException OR error code is not yet defined by the developer"),
+
+  INVALID_ARGUMENT_FOUND(1006, "Invalid Argument Found");
   // @formatter:on
 
   private final int value;

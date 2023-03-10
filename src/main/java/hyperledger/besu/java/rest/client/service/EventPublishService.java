@@ -17,4 +17,6 @@ public interface EventPublishService {
    */
   boolean publishTransactionFailureEvent(
       String errorMsg, String contractName, String functionName, String parameters);
+
+  boolean publishEventLogs(Object eventLog);
 }

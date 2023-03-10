@@ -13,9 +13,9 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 @Slf4j
 public class HeaderAuthenticationFilter extends OncePerRequestFilter {
 
-  private EthProperties ethProperties;
+  private final EthProperties ethProperties;
 
-  private HandlerExceptionResolver handlerExceptionResolver;
+  private final HandlerExceptionResolver handlerExceptionResolver;
 
   /**
    * Instantiates a new Header authentication filter.
