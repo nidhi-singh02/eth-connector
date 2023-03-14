@@ -3,8 +3,8 @@ package hyperledger.besu.java.rest.client.model.abi;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR;
 
 import hyperledger.besu.java.rest.client.exception.BesuTransactionException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,30 +28,26 @@ public class AbiDefinitionWrapper extends AbiDefinition {
     if (CollectionUtils.isEmpty(inputs)) {
       return Collections.emptyList();
     }
-    List<Type> inputTypes = new ArrayList<>();
     List<Class> inputClasses =
         inputs.stream()
             .map(AbiDefinition.NamedType::getType)
             .map(AbiTypes::getType)
             .collect(Collectors.toList());
+    if (inputClasses.size() != params.length) {
+      throw new BesuTransactionException(
+          HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR,
+          "No of input params doesn't match number of inputs for the function");
+    }
     int index = 0;
     for (Class clazz : inputClasses) {
-      Type type;
-      try {
-        type = (Type) clazz.getConstructor(params[index].getClass()).newInstance(params[index]);
-        index++;
-        inputTypes.add(type);
-      } catch (InstantiationException
-          | IllegalAccessException
-          | InvocationTargetException
-          | NoSuchMethodException e) {
+      if (!clazz.equals(params[index].getClass())) {
         throw new BesuTransactionException(
             HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR,
-            "Unable to retrieve input type from ABI Definition file",
-            e);
+            "Input parameter class doesn't match class of corresponding input for the function");
       }
+      index++;
     }
-    return inputTypes;
+    return Arrays.stream(params).map(Type.class::cast).collect(Collectors.toList());
   }
 
   public List<TypeReference<?>> getOutputTypeReferences() {
