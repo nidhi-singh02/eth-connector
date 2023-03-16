@@ -1,19 +1,18 @@
 package hyperledger.besu.java.rest.client.listener;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hyperledger.besu.java.rest.client.dto.CustomMultipartFile;
 import hyperledger.besu.java.rest.client.exception.BesuTransactionException;
 import hyperledger.besu.java.rest.client.service.EventPublishService;
 import hyperledger.besu.java.rest.client.service.TransactionService;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.header.Header;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.stereotype.Service;
-import org.web3j.protocol.core.methods.response.AbiDefinition;
+import org.springframework.web.multipart.MultipartFile;
 
 /*
  * This class has the consumer logic for processing and adding transaction to fabric
@@ -53,7 +52,7 @@ public class TransactionConsumer {
 
     Header[] kafkaHeaders = message.headers().toArray();
 
-    String abiDefinitionList = "";
+    MultipartFile abiDefinitionFile = null;
     String contractAddress = "";
     String transactionFunctionName = "";
     String transactionParams = "";
@@ -77,22 +76,18 @@ public class TransactionConsumer {
             transactionFunctionName = new String(msgHeader.value(), StandardCharsets.UTF_8);
             break;
           case ABI_DEFINITION_LIST:
-            abiDefinitionList = new String(msgHeader.value(), StandardCharsets.UTF_8);
+            abiDefinitionFile = new CustomMultipartFile(msgHeader.value());
             break;
           default:
             break;
         }
       }
 
-      // convert from string to the ABI definition list
-      List<AbiDefinition> abiDefinitions =
-          objectMapper.readValue(abiDefinitionList, new TypeReference<List<AbiDefinition>>() {});
-
       if (!contractAddress.isEmpty()
           && !transactionFunctionName.isEmpty()
           && !transactionParams.isEmpty()) {
         transactionService.execute(
-            abiDefinitions, contractAddress, transactionFunctionName, transactionParams);
+            abiDefinitionFile, contractAddress, transactionFunctionName, transactionParams);
       }
       acknowledgment.acknowledge();
     } catch (BesuTransactionException e) {

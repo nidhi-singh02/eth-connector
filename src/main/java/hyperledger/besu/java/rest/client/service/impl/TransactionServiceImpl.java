@@ -3,7 +3,9 @@ package hyperledger.besu.java.rest.client.service.impl;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_SEND_TRANSACTION_ERROR;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_TRANSACTION_ERROR;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_TRANSACTION_RECEIPT_ERROR;
+import static hyperledger.besu.java.rest.client.exception.ErrorCode.VALIDATION_FAILED;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hyperledger.besu.java.rest.client.config.EthConfig;
 import hyperledger.besu.java.rest.client.dto.Transaction;
 import hyperledger.besu.java.rest.client.exception.BesuTransactionException;
@@ -12,12 +14,15 @@ import hyperledger.besu.java.rest.client.exception.ServiceException;
 import hyperledger.besu.java.rest.client.model.ClientResponseModel;
 import hyperledger.besu.java.rest.client.model.TransactionResponseModel;
 import hyperledger.besu.java.rest.client.service.TransactionService;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.web3j.abi.datatypes.Type;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.RawTransaction;
@@ -36,6 +41,8 @@ import org.web3j.utils.Numeric;
 @Slf4j
 @Service
 public class TransactionServiceImpl implements TransactionService {
+
+  @Autowired ObjectMapper objectMapper;
 
   private final EthConfig ethConfig;
   private final TransactionReceiptProcessor transactionReceiptProcessor;
@@ -129,10 +136,24 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Override
   public ClientResponseModel execute(
-      List<AbiDefinition> abiDefinitionList,
+      MultipartFile abiDefinitionFile,
       String contractAddress,
       String functionName,
       Object... params) {
+
+    List<AbiDefinition> abiDefinitionList;
+    try {
+      abiDefinitionList =
+          objectMapper.readValue(
+              abiDefinitionFile.getBytes(),
+              objectMapper
+                  .getTypeFactory()
+                  .constructCollectionType(List.class, AbiDefinition.class));
+      log.debug("ABI definition: {}", abiDefinitionList);
+    } catch (IOException e) {
+      throw new ServiceException(
+          VALIDATION_FAILED, "Unable to retrieve contents from abi definition file");
+    }
 
     // The flow should be
     // 1. To create the payload for transaction
@@ -182,10 +203,24 @@ public class TransactionServiceImpl implements TransactionService {
 
   @Override
   public ClientResponseModel read(
-      List<AbiDefinition> abiDefinitionList,
+      MultipartFile abiDefinitionFile,
       String contractAddress,
       String functionName,
-      String... params) {
+      Object... params) {
+
+    List<AbiDefinition> abiDefinitionList;
+    try {
+      abiDefinitionList =
+          objectMapper.readValue(
+              abiDefinitionFile.getBytes(),
+              objectMapper
+                  .getTypeFactory()
+                  .constructCollectionType(List.class, AbiDefinition.class));
+      log.debug("ABI definition: {}", abiDefinitionList);
+    } catch (IOException e) {
+      throw new ServiceException(
+          VALIDATION_FAILED, "Unable to retrieve contents from abi definition file");
+    }
 
     // The flow should be
     // 1. To create the payload for transaction

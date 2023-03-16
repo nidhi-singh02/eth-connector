@@ -1,24 +1,23 @@
 package hyperledger.besu.java.rest.client.service;
 
 import hyperledger.besu.java.rest.client.model.ClientResponseModel;
-import java.util.List;
-import org.web3j.protocol.core.methods.response.AbiDefinition;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface TransactionService {
 
   /** */
   ClientResponseModel execute(
-      List<AbiDefinition> abiDefinitionList,
+      MultipartFile abiDefinitionFile,
       String contractAddress,
       String functionName,
       Object... params);
 
   /** */
   ClientResponseModel read(
-      List<AbiDefinition> abiDefinitionList,
+      MultipartFile abiDefinitionFile,
       String contractAddress,
       String functionName,
-      String... params);
+      Object... params);
 
   /** */
   ClientResponseModel deploy(final String compiledHexString);
