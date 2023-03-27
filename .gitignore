@@ -1,5 +1,7 @@
 HELP.md
 target/
+src/main/resources/application.yml
+src/main/resources/wallet
 
 ### IntelliJ IDEA ###
 .idea

@@ -5,20 +5,24 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.Builder;
+import lombok.Data;
 import org.web3j.abi.datatypes.Type;
 
+@Data
 public class TransactionResponseModel implements Serializable {
   private List<TypedResponse> smartContractResponse;
   private TransactionDetails transactionDetails;
 
   @Builder
-  static class TypedResponse {
+  @Data
+  static class TypedResponse implements Serializable {
     private String type;
     private Object value;
   }
 
   @Builder
-  static class TransactionDetails {
+  @Data
+  static class TransactionDetails implements Serializable {
     private String transactionHash;
     private BigInteger blockNumber;
   }
