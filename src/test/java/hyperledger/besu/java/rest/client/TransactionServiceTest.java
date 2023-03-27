@@ -63,8 +63,8 @@ public class TransactionServiceTest {
   private String contractAddressGetPut;
   private ObjectMapper objectMapper;
   private String contractAddressNFT;
-  @BeforeAll
 
+  @BeforeAll
   void init() throws  Exception{
     String compiledCode =
             FileUtils.readFileToString(new File(getputContractByteCode), StandardCharsets.UTF_8);
@@ -78,8 +78,6 @@ public class TransactionServiceTest {
      response = transactionService.deploy(NFTCode);
      contractAddressNFT = (String) response.getMessage();
     System.out.println("message: " + response.getMessage());
-
-
   }
 
   @Test
@@ -90,7 +88,6 @@ public class TransactionServiceTest {
     Assertions.assertEquals(response.getCode(), null);
     Assertions.assertNotNull(response.getMessage());
     System.out.println("message: " + response.getMessage());
-
   }
 
   @Test
@@ -117,7 +114,8 @@ public class TransactionServiceTest {
     ClientResponseModel response =
             transactionService.execute( mockMultipartFile, contractAddress, functionName, params);
     Assertions.assertEquals(response.getCode(), ErrorConstants.NO_ERROR);
-    System.out.println("message: " + response.getMessage());
+    TransactionResponseModel transactionResponseModel = (TransactionResponseModel) response.getMessage();
+    System.out.println("message: " + transactionResponseModel);
   }
 
   @Test
@@ -133,7 +131,6 @@ public class TransactionServiceTest {
       Assertions.assertEquals(e.getCode(), HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR);
       Assertions.assertEquals(e.getMessage(), "No of input params doesn't match number of inputs for the function");
     }
-
   }
 
   @Test
@@ -182,72 +179,14 @@ public class TransactionServiceTest {
 
   @Test
   void testReadWithParams() throws Exception {
+    testExecutionMint();
     mockMultipartFile = new MockMultipartFile("NFT.abi", Files.newInputStream(new File("src/test/resources/NFT.abi").toPath()));
     functionName = "balanceOf";
     Object[] params = { new Address("0x1110000")};
     ClientResponseModel response =
             transactionService.read(mockMultipartFile, contractAddressNFT, functionName, params);
     Assertions.assertEquals(response.getCode(), ErrorConstants.NO_ERROR);
-
-//    TransactionResponseModel transactionResponseModel = (TransactionResponseModel) response.getMessage();
-//    Serializable message = response.getMessage();
-//    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-//    ObjectOutputStream oos = new ObjectOutputStream(byteArrayOutputStream);
-//    oos.writeObject(message);
-//    oos.close();
-
-//    System.out.println("byteArrayOutputStream"+byteArrayOutputStream);
-//    System.out.println("byteArrayOutputStream 2"+byteArrayOutputStream.toByteArray());
-//
-//    ByteArrayInputStream byteInputStream
-//            = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
-//    ObjectInputStream objectInputStream
-//            = new ObjectInputStream(byteInputStream);
-//    TransactionResponseModel transactionResponseModel = (TransactionResponseModel) objectInputStream.readObject();
-//    objectInputStream.close();
-
-
-    // 2nd method using ObjectMapper
-//    byte[] serializedData =  serialize(response.getMessage());
-//    System.out.println("serializedData"+serializedData);
-//    objectMapper = new ObjectMapper();
-//    TransactionResponseModel model =  objectMapper.readValue(serializedData, TransactionResponseModel.class);
-//    System.out.println("serializedData"+model);
-
-
-    byte[] serializedData =  serialize(response.getMessage());
-    System.out.println("serializedData"+serializedData);
-//   TransactionResponseModel transactionResponseModel1 = (TransactionResponseModel) des(serializedData);
-   TransactionResponseModel transactionResponseModel1 = convert(serializedData, TransactionResponseModel.class);
-    System.out.println("transactionResponseModel1: " + transactionResponseModel1);
-    }
-
-
-  public static <T> T convert(byte[] serializedData,Class<T> clazz) throws IOException, ClassNotFoundException {
-    ByteArrayInputStream byteIn = new ByteArrayInputStream(serializedData);
-    ObjectInputStream in = new ObjectInputStream(byteIn);
-    Object obj = in.readObject();
-    in.close();
-    byteIn.close();
-    return clazz.cast(obj);
+    TransactionResponseModel transactionResponseModel = (TransactionResponseModel) response.getMessage();
+    System.out.println("transactionResponseModel1: " + transactionResponseModel);
   }
-  public static Object des(byte[] serializedData) throws IOException, ClassNotFoundException {
-    ByteArrayInputStream byteIn = new ByteArrayInputStream(serializedData);
-    ObjectInputStream in = new ObjectInputStream(byteIn);
-    Object obj = in.readObject();
-    in.close();
-    byteIn.close();
-    return obj;
-  }
-
-  private static byte[] serialize(Serializable obj) throws IOException {
-    ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-    ObjectOutputStream out = new ObjectOutputStream(byteOut);
-    out.writeObject(obj);
-    out.close();
-    byteOut.close();
-    return byteOut.toByteArray();
-  }
-
-  }
-
+}
