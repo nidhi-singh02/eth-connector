@@ -12,13 +12,13 @@ public class TransactionResponseModel implements Serializable {
   private TransactionDetails transactionDetails;
 
   @Builder
-  static class TypedResponse {
+  static class TypedResponse implements  Serializable {
     private String type;
     private Object value;
   }
 
   @Builder
-  static class TransactionDetails {
+  static class TransactionDetails implements  Serializable {
     private String transactionHash;
     private BigInteger blockNumber;
   }

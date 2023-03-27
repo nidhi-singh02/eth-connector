@@ -256,8 +256,7 @@ public class TransactionServiceImpl implements TransactionService {
         Transaction.builder()
             .compiledHexBinary(compiledHexString)
             .gasPrice(BigInteger.valueOf(ethConfig.getEthProperties().getGasPrice()))
-            .gasLimit(BigInteger.valueOf(ethConfig.getEthProperties().getGasLimit()))
-            .nonce(getNonce(credentials.getAddress()))
+            .gasLimit(BigInteger.valueOf(ethConfig.getEthProperties().getGasLimit()))            .nonce(getNonce(credentials.getAddress()))
             .build();
     EthSendTransaction ethSendTransaction = sendTransaction(transaction.getContractTransaction());
 

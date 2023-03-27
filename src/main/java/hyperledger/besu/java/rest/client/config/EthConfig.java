@@ -24,7 +24,7 @@ public class EthConfig {
   private List<Web3j> web3jList;
   @Autowired private EthProperties ethProperties;
 
-  @RefreshScope
+//  @RefreshScope
   @Bean
   public Credentials getCredentials() {
     Credentials credentials;
