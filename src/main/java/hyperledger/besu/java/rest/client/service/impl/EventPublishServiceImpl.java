@@ -1,6 +1,7 @@
 package hyperledger.besu.java.rest.client.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hyperledger.besu.java.rest.client.model.events.SmartContractEventWrapper;
 import hyperledger.besu.java.rest.client.service.EventPublishService;
 import java.nio.charset.StandardCharsets;
 import javax.management.OperationsException;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 import org.web3j.protocol.core.methods.response.EthBlock;
-import org.web3j.protocol.core.methods.response.Log;
 
 @Slf4j
 @Service("eventPublishService")
@@ -30,6 +30,7 @@ public class EventPublishServiceImpl implements EventPublishService {
   public static final String EVENT_TYPE_ERROR = "error-event";
   public static final String EVENT_TYPE_LOG = "log-event";
   public static final String ETH_BLOCK_HASH = "eth-block-hash";
+  public static final String EVENT_NAME = "event-name";
 
   @Value("${kafka.event-listener.topic}")
   private String topicName;
@@ -84,11 +85,23 @@ public class EventPublishServiceImpl implements EventPublishService {
     boolean status = true;
     ProducerRecord<String, String> producerRecord;
     try {
-      if (eventLog instanceof Log) {
-        producerRecord = new ProducerRecord<>(topicName, mapper.writeValueAsString(eventLog));
+      if (eventLog instanceof SmartContractEventWrapper) {
+
+        producerRecord =
+            new ProducerRecord<>(
+                topicName,
+                mapper.writeValueAsString(((SmartContractEventWrapper) eventLog).getLog()));
         producerRecord
             .headers()
-            .add(new RecordHeader(CONTRACT_ADDRESS, ((Log) eventLog).getAddress().getBytes()));
+            .add(
+                new RecordHeader(
+                    CONTRACT_ADDRESS,
+                    ((SmartContractEventWrapper) eventLog).getLog().getAddress().getBytes()));
+        producerRecord
+            .headers()
+            .add(
+                new RecordHeader(
+                    EVENT_NAME, ((SmartContractEventWrapper) eventLog).getEventName().getBytes()));
       } else if (eventLog instanceof EthBlock) {
         producerRecord = new ProducerRecord<>(topicName, mapper.writeValueAsString(eventLog));
         producerRecord
@@ -102,7 +115,6 @@ public class EventPublishServiceImpl implements EventPublishService {
       }
 
       producerRecord.headers().add(new RecordHeader(EVENT_TYPE, EVENT_TYPE_LOG.getBytes()));
-
       ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(producerRecord);
 
       future.addCallback(
@@ -110,7 +122,7 @@ public class EventPublishServiceImpl implements EventPublishService {
 
             @Override
             public void onSuccess(SendResult<String, String> result) {
-              log.info(
+              log.debug(
                   "Sent Log=["
                       + eventLog
                       + "] with offset=["

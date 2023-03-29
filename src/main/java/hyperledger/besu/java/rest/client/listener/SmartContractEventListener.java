@@ -20,7 +20,8 @@ public class SmartContractEventListener implements Runnable {
   @Override
   public void run() {
     // only use smartContract address
-    if (ObjectUtils.isEmpty(ethEventsProperties.getSmartContract())) {
+    if (ObjectUtils.isEmpty(ethEventsProperties.getSmartContract())
+        && ObjectUtils.isEmpty(ethEventsProperties.getSmartContract().getAddresses())) {
       throw new NotFoundException(ErrorCode.NOT_FOUND, "Smart Contract Address list is empty");
     }
     topicFilterHandler.receiveAllEventsByEthFilter();

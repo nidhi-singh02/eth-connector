@@ -3,6 +3,7 @@ package hyperledger.besu.java.rest.client.filters;
 import hyperledger.besu.java.rest.client.config.EthConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.core.DefaultBlockParameter;
 
@@ -13,7 +14,8 @@ public class TransactionFilterHandler {
   @Autowired private EthConfig ethConfig;
 
   // To receive all new transactions as they are added to the blockchain:
-  private void receiveAllNewTransaction() {
+  @Async
+  public void receiveAllNewTransaction() {
 
     ethConfig
         .getWeb3jList()
@@ -29,7 +31,8 @@ public class TransactionFilterHandler {
 
   // To receive all pending transactions as they are submitted to the network (i.e. before they have
   // been grouped into a block together):
-  private void receiveAllPendingTransactions() {
+  @Async
+  public void receiveAllPendingTransactions() {
 
     ethConfig
         .getWeb3jList()
@@ -44,7 +47,8 @@ public class TransactionFilterHandler {
   }
 
   // Replay all blocks to the most current, but with transactions contained within blocks:
-  private void replayPastAndFutureTransactions(DefaultBlockParameter startBlock) {
+  @Async
+  public void replayPastAndFutureTransactions(DefaultBlockParameter startBlock) {
 
     ethConfig
         .getWeb3jList()

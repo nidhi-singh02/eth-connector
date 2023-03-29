@@ -3,6 +3,7 @@ package hyperledger.besu.java.rest.client.filters;
 import hyperledger.besu.java.rest.client.config.EthConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.core.DefaultBlockParameter;
 
@@ -14,7 +15,8 @@ public class ReplayFilterHandler {
 
   // replay all blocks up to the most current, and provide notification (via the submitted Flowable)
   // once you've caught up:
-  private void replayPastBlocksFlowable(
+  @Async
+  public void replayPastBlocksFlowable(
       DefaultBlockParameter startBlockNumber,
       DefaultBlockParameter endBlockNumber,
       boolean fullTxObjects,
@@ -32,7 +34,8 @@ public class ReplayFilterHandler {
   }
 
   // replay all blocks to the most current, then be notified of new subsequent blocks being created:
-  private void replayPastAndFutureBlocksFlowable(
+  @Async
+  public void replayPastAndFutureBlocksFlowable(
       DefaultBlockParameter startBlockNumber, boolean fullTxObjects) {
 
     ethConfig

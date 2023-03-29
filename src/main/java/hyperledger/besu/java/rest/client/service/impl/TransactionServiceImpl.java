@@ -41,7 +41,7 @@ import org.web3j.utils.Numeric;
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
-  @Autowired ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   private final EthConfig ethConfig;
   private final TransactionReceiptProcessor transactionReceiptProcessor;
@@ -50,10 +50,6 @@ public class TransactionServiceImpl implements TransactionService {
   // these are default values found in the TransactionManager of Web3j
   private static final int DEFAULT_POLLING_ATTEMPTS_PER_TX_HASH = 40;
   private static final long DEFAULT_POLLING_FREQUENCY = 15 * 1000;
-  private final EthConfig ethConfig;
-  private final TransactionReceiptProcessor transactionReceiptProcessor;
-  private final Credentials credentials;
-  @Autowired ObjectMapper objectMapper;
 
   public TransactionServiceImpl(
       final EthConfig ethConfig, final CredentialWrapper credentialWrapper) {

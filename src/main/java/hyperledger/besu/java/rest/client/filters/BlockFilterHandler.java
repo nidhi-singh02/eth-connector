@@ -12,8 +12,7 @@ import org.springframework.stereotype.Service;
 public class BlockFilterHandler {
   @Autowired private EthConfig ethConfig;
 
-  @Autowired(required = false)
-  private EventPublishService eventPublishServiceImpl;
+  @Autowired private EventPublishService eventPublishServiceImpl;
 
   // To receive all new blocks as they are added to the blockchain (the false parameter specifies
   // that we only want the blocks, not the embedded transactions too):
@@ -31,7 +30,7 @@ public class BlockFilterHandler {
         .subscribe(
             block -> {
               if (!block.hasError()) {
-                log.info("block event listening {}", block.getBlock());
+                log.info("block event listening for block hash {}", block.getBlock().getHash());
                 eventPublishServiceImpl.publishEventLogs(block);
               } else {
                 log.error("Error in block {} " + block.getError());

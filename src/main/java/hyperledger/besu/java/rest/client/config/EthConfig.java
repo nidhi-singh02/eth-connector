@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.web3j.crypto.Credentials;
@@ -23,7 +24,8 @@ public class EthConfig {
 
   private List<Web3j> web3jList;
   @Autowired private EthProperties ethProperties;
-  //  @RefreshScope
+
+  @RefreshScope
   @Bean
   public CredentialWrapper getCredentials() {
     Credentials credentials;
