@@ -1,7 +1,7 @@
 package hyperledger.besu.java.rest.client.listener;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hyperledger.besu.java.rest.client.dto.CustomMultipartFile;
+import hyperledger.besu.java.rest.client.dto.MultipartABIFile;
 import hyperledger.besu.java.rest.client.exception.BesuTransactionException;
 import hyperledger.besu.java.rest.client.service.EventPublishService;
 import hyperledger.besu.java.rest.client.service.TransactionService;
@@ -76,7 +76,7 @@ public class TransactionConsumer {
             transactionFunctionName = new String(msgHeader.value(), StandardCharsets.UTF_8);
             break;
           case ABI_DEFINITION_LIST:
-            abiDefinitionFile = new CustomMultipartFile(msgHeader.value());
+            abiDefinitionFile = new MultipartABIFile(msgHeader.value());
             break;
           default:
             break;

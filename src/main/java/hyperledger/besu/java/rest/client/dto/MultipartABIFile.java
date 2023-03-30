@@ -1,31 +1,34 @@
 package hyperledger.besu.java.rest.client.dto;
 
+import static hyperledger.besu.java.rest.client.exception.ErrorCode.NOT_SUPPORTED;
+
+import hyperledger.besu.java.rest.client.exception.NotImplementedException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Objects;
 import org.springframework.web.multipart.MultipartFile;
 
-public class CustomMultipartFile implements MultipartFile {
+public class MultipartABIFile implements MultipartFile {
   private final byte[] fileContent;
 
-  public CustomMultipartFile(byte[] fileContent) {
+  public MultipartABIFile(byte[] fileContent) {
     this.fileContent = fileContent;
   }
 
   @Override
   public String getName() {
-    return null;
+    throw new NotImplementedException(NOT_SUPPORTED, "Operation not supported");
   }
 
   @Override
   public String getOriginalFilename() {
-    return null;
+    throw new NotImplementedException(NOT_SUPPORTED, "Operation not supported");
   }
 
   @Override
   public String getContentType() {
-    return null;
+    throw new NotImplementedException(NOT_SUPPORTED, "Operation not supported");
   }
 
   @Override
