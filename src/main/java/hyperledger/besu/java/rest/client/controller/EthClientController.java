@@ -7,7 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -19,10 +22,10 @@ public class EthClientController {
   /** */
   @PostMapping(value = "/transactions")
   public ResponseEntity<ClientResponseModel> executeTransaction(
-      @RequestParam("abi-definition-file") MultipartFile abiDefinitionFile,
+      @RequestParam("abi-definition") @Validated MultipartFile abiDefinitionFile,
       @RequestParam("transaction_contract_address") @Validated String contractAddress,
       @RequestParam("transaction_function_name") @Validated String functionName,
-      @RequestParam("transaction_params") @Validated Object... params) {
+      @RequestParam("transaction_params") @Validated String... params) {
     log.debug(
         "Write transaction contract: {}, function: {}, params: {}",
         contractAddress,
@@ -36,10 +39,10 @@ public class EthClientController {
   /** */
   @GetMapping(value = "/transactions")
   public ResponseEntity<ClientResponseModel> readTransaction(
-      @RequestPart(value = "abi-definition-file") MultipartFile abiDefinitionFile,
+      @RequestParam("abi-definition") MultipartFile abiDefinitionFile,
       @RequestParam("transaction_contract_address") @Validated String contractAddress,
       @RequestParam("transaction_function_name") @Validated String functionName,
-      @RequestParam("transaction_params") @Validated Object... params) {
+      @RequestParam("transaction_params") @Validated String... params) {
     log.debug(
         "Read transaction contract: {}, function: {}, params: {}",
         contractAddress,

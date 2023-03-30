@@ -139,7 +139,7 @@ public class TransactionServiceImpl implements TransactionService {
       MultipartFile abiDefinitionFile,
       String contractAddress,
       String functionName,
-      Object... params) {
+      String... params) {
 
     List<AbiDefinition> abiDefinitionList;
     try {
@@ -206,7 +206,7 @@ public class TransactionServiceImpl implements TransactionService {
       MultipartFile abiDefinitionFile,
       String contractAddress,
       String functionName,
-      Object... params) {
+      String... params) {
 
     List<AbiDefinition> abiDefinitionList;
     try {
