@@ -11,7 +11,7 @@ public enum ErrorCode {
   NO_EVENTS_FOUND(1001, "Not able to find any events for the passed input."),
   NOT_SUPPORTED(1002, "Operation passed not supported."),
   VALIDATION_FAILED(1003, "The data passed fails validation from the resource."),
-  INITIALIZATION_FAILED(1004, "Failed to bootstrap the applciation"),
+  INITIALIZATION_FAILED(1004, "Failed to bootstrap the application"),
 
   HYPERLEDGER_BESU_CONNECTION_ERROR(5000, "Hyperledger Besu connection related error"),
 
