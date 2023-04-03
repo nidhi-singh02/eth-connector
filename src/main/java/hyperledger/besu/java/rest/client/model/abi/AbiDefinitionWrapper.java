@@ -3,8 +3,8 @@ package hyperledger.besu.java.rest.client.model.abi;
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR;
 
 import hyperledger.besu.java.rest.client.exception.BesuTransactionException;
+import hyperledger.besu.java.rest.client.utils.TypeConversionUtility;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,11 +23,15 @@ public class AbiDefinitionWrapper extends AbiDefinition {
     super(from);
   }
 
-  public List<Type> getInputType(Object[] params) {
+  public List<Type> getInputType(String[] params) {
+
     List<NamedType> inputs = this.getInputs();
     if (CollectionUtils.isEmpty(inputs)) {
       return Collections.emptyList();
     }
+
+    List<Type> inputTypes = new ArrayList<>();
+    // get ABI datatype of input parameters
     List<Class> inputClasses =
         inputs.stream()
             .map(AbiDefinition.NamedType::getType)
@@ -38,16 +42,22 @@ public class AbiDefinitionWrapper extends AbiDefinition {
           HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR,
           "No of input params doesn't match number of inputs for the function");
     }
+
     int index = 0;
     for (Class clazz : inputClasses) {
-      if (!clazz.equals(params[index].getClass())) {
+      try {
+        Object inputParam = TypeConversionUtility.convert(clazz, params[index]);
+        Object type = clazz.getConstructor(inputParam.getClass()).newInstance(inputParam);
+        index++;
+        inputTypes.add((Type) type);
+      } catch (Exception e) {
         throw new BesuTransactionException(
             HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR,
-            "Input parameter class doesn't match class of corresponding input for the function");
+            "Unable to construct input type for function from given parameter input",
+            e);
       }
-      index++;
     }
-    return Arrays.stream(params).map(Type.class::cast).collect(Collectors.toList());
+    return inputTypes;
   }
 
   public List<TypeReference<?>> getOutputTypeReferences() {

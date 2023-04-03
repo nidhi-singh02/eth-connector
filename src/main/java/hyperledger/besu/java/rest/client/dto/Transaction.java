@@ -1,8 +1,10 @@
 package hyperledger.besu.java.rest.client.dto;
 
 import static hyperledger.besu.java.rest.client.exception.ErrorCode.HYPERLEDGER_BESU_NO_ABI_DEFINITION_FOUND_ERROR;
+import static hyperledger.besu.java.rest.client.exception.ErrorCode.VALIDATION_FAILED;
 
 import hyperledger.besu.java.rest.client.exception.BesuTransactionException;
+import hyperledger.besu.java.rest.client.exception.ServiceException;
 import hyperledger.besu.java.rest.client.model.abi.AbiDefinitionWrapper;
 import hyperledger.besu.java.rest.client.utils.AbiUtility;
 import java.math.BigInteger;
@@ -26,7 +28,7 @@ public class Transaction {
 
   private List<AbiDefinition> abiDefinitionList;
   private String functionName;
-  private Object[] params;
+  private String[] params;
   private String contractAddress;
   private Function functionRef;
   private String compiledHexBinary;
@@ -53,18 +55,26 @@ public class Transaction {
       // handle exceptions
     }
     return Optional.ofNullable(functionRef);
-    // Collections.singletonList(new Uint(BigInteger.valueOf(0)))
   }
 
   public String getEncodedFunction() {
-    Optional<Function> function = getFunction();
-    // TODO: Error if function is empty
-    return FunctionEncoder.encode(function.get());
+    Optional<Function> functionOptional = getFunction();
+    if (!functionOptional.isPresent()) {
+      throw new ServiceException(
+          VALIDATION_FAILED,
+          "Unable to create org.web3j.abi.datatypes.Function from given input types");
+    }
+    return FunctionEncoder.encode(functionOptional.get());
   }
 
   public List<Type> getDecodedFunction(String response) {
-    Optional<Function> function = getFunction();
-    return FunctionReturnDecoder.decode(response, function.get().getOutputParameters());
+    Optional<Function> functionOptional = getFunction();
+    if (!functionOptional.isPresent()) {
+      throw new ServiceException(
+          VALIDATION_FAILED,
+          "Unable to create org.web3j.abi.datatypes.Function from given input types");
+    }
+    return FunctionReturnDecoder.decode(response, functionOptional.get().getOutputParameters());
   }
 
   public List<TypeReference<Type>> getOutputParams() {

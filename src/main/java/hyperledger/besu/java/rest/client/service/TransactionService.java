@@ -10,14 +10,14 @@ public interface TransactionService {
       MultipartFile abiDefinitionFile,
       String contractAddress,
       String functionName,
-      Object... params);
+      String... params);
 
   /** */
   ClientResponseModel read(
       MultipartFile abiDefinitionFile,
       String contractAddress,
       String functionName,
-      Object... params);
+      String... params);
 
   /** */
   ClientResponseModel deploy(final String compiledHexString);

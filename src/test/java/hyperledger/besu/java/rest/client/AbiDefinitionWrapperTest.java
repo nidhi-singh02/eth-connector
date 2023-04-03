@@ -18,7 +18,6 @@ import org.web3j.abi.FunctionEncoder;
 import org.web3j.abi.TypeReference;
 import org.web3j.abi.datatypes.Address;
 import org.web3j.abi.datatypes.Function;
-import org.web3j.abi.datatypes.Type;
 import org.web3j.abi.datatypes.generated.Int256;
 import org.web3j.abi.datatypes.generated.Uint256;
 import org.web3j.protocol.core.methods.response.AbiDefinition;
@@ -63,7 +62,7 @@ class AbiDefinitionWrapperTest {
   @Test
   void testTransfer() {
 
-    Object[] params = {new Address("0x12345"), new Uint256(BigInteger.valueOf(1))};
+    String[] params = {"0x12345", String.valueOf(BigInteger.valueOf(1))};
     Transaction transaction =
         Transaction.builder()
             .functionName("transfer")
@@ -73,7 +72,9 @@ class AbiDefinitionWrapperTest {
     String result = transaction.getEncodedFunction();
     Function function =
         new Function(
-            "transfer", Arrays.asList((Type) params[0], (Type) params[1]), Collections.emptyList());
+            "transfer",
+            Arrays.asList(new Address(params[0]), new Uint256(Long.parseLong(params[1]))),
+            Collections.emptyList());
     String expectedResult = FunctionEncoder.encode(function);
     Assertions.assertEquals(expectedResult, result);
   }
@@ -81,7 +82,7 @@ class AbiDefinitionWrapperTest {
   @Test
   void testGetBalance() {
 
-    Object[] params = {new Address("0x12345")};
+    String[] params = {"0x12345"};
     Transaction transaction =
         Transaction.builder()
             .functionName("getBalance")
@@ -92,7 +93,7 @@ class AbiDefinitionWrapperTest {
     Function function =
         new Function(
             "getBalance",
-            Arrays.asList((Type) params[0]),
+            Arrays.asList(new Address(params[0])),
             Arrays.asList(new TypeReference<Uint256>() {}));
     String expectedResult = FunctionEncoder.encode(function);
     Assertions.assertEquals(expectedResult, result);
