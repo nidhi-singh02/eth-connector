@@ -30,16 +30,3 @@ besu:
   client:
     rest:
       apikey: xyz
-kafka:
-  integration-points:
-    -
-      brokerHost: localhost:9093
-      groupId: besu-consumer
-      topic: besu-integration-topic1
-    -
-      brokerHost: localhost:9094
-      groupId: besu-consumer
-      topic: hlf-integration-topic2
-  event-listener:
-    brokerHost: localhost:9093
-    topic: besu-offchain-topic
