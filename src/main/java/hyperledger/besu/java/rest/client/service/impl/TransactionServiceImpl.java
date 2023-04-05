@@ -29,7 +29,6 @@ import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.AbiDefinition;
-import org.web3j.protocol.core.methods.response.EthCall;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
 import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.protocol.core.methods.response.Log;
@@ -42,15 +41,13 @@ import org.web3j.utils.Numeric;
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
-  @Autowired ObjectMapper objectMapper;
-
-  private final EthConfig ethConfig;
-  private final TransactionReceiptProcessor transactionReceiptProcessor;
-  private final Credentials credentials;
-
   // these are default values found in the TransactionManager of Web3j
   private static final int DEFAULT_POLLING_ATTEMPTS_PER_TX_HASH = 40;
   private static final long DEFAULT_POLLING_FREQUENCY = 15 * 1000;
+  private final EthConfig ethConfig;
+  private final TransactionReceiptProcessor transactionReceiptProcessor;
+  private final Credentials credentials;
+  @Autowired ObjectMapper objectMapper;
 
   public TransactionServiceImpl(final EthConfig ethConfig, final Credentials credentials) {
     this.ethConfig = ethConfig;
@@ -73,7 +70,7 @@ public class TransactionServiceImpl implements TransactionService {
               .sendAsync()
               .get();
     } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException(e);
+      throw new ServiceException(HYPERLEDGER_BESU_TRANSACTION_ERROR, e.getMessage(), e);
     }
     log.debug("Generated nonce: {}", ethGetTransactionCount.getTransactionCount());
     return ethGetTransactionCount.getTransactionCount();
@@ -108,7 +105,7 @@ public class TransactionServiceImpl implements TransactionService {
   }
 
   private String readTransaction(Transaction transaction) {
-    EthCall response = null;
+    org.web3j.protocol.core.methods.response.EthCall response = null;
     try {
       response =
           ethConfig
@@ -123,14 +120,18 @@ public class TransactionServiceImpl implements TransactionService {
               .sendAsync()
               .get();
     } catch (Exception e) {
-      throw new BesuTransactionException(HYPERLEDGER_BESU_TRANSACTION_ERROR, "unable to ethcall");
+      throw new BesuTransactionException(
+          HYPERLEDGER_BESU_TRANSACTION_ERROR, "unable to ethcall: " + e.getMessage());
     }
     if (response.isReverted()) {
-      throw new BesuTransactionException(HYPERLEDGER_BESU_TRANSACTION_ERROR, "failed in ethcall");
+      throw new BesuTransactionException(
+          HYPERLEDGER_BESU_TRANSACTION_ERROR, "failed in ethcall: " + response.getRevertReason());
     }
+
     log.debug("response: {} raw response: {}", response, response.getRawResponse());
     log.debug("error: {}", response.getError());
     log.debug("result: {}", response.getResult());
+
     return response.getValue();
   }
 
@@ -237,9 +238,10 @@ public class TransactionServiceImpl implements TransactionService {
             .gasLimit(BigInteger.valueOf(ethConfig.getEthProperties().getGasLimit()))
             .nonce(getNonce(credentials.getAddress()))
             .build();
+
     // read the response of transaction
     String response = readTransaction(transaction);
-    log.info("responseValue: {} ", response);
+    log.debug("responseValue: {} ", response);
 
     List<Type> result = transaction.getDecodedFunction(response);
 
