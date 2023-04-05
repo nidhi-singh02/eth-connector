@@ -23,7 +23,7 @@ besu:
     - http://localhost:8545
 
   wallet:
-    path: src/main/resources/wallet
+    path: src/test/resources/wallet
     password: testpassword
   gasPrice: 0
   gasLimit: 2147483647
