@@ -40,3 +40,11 @@ kafka:
   event-listener:
     brokerHost: localhost:9093
     topic: besu-offchain-topic
+
+events:
+  block: true
+  smartContract:
+    addresses:
+      - "0x7EF2e0048f5bAeDe046f6BF797943daF4ED8CB47"
+      - "0xDA0bab807633f07f013f94DD0E6A4F96F8742B53"
+    abiBasePath: /usr/local/config/eth-connector/smart-contracts/

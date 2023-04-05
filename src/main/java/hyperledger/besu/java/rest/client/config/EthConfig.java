@@ -1,5 +1,6 @@
 package hyperledger.besu.java.rest.client.config;
 
+import hyperledger.besu.java.rest.client.BeanWrappers.CredentialWrapper;
 import hyperledger.besu.java.rest.client.exception.ErrorCode;
 import hyperledger.besu.java.rest.client.exception.ServiceException;
 import java.util.List;
@@ -8,6 +9,7 @@ import javax.annotation.PostConstruct;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.web3j.crypto.Credentials;
@@ -22,9 +24,10 @@ public class EthConfig {
 
   private List<Web3j> web3jList;
   @Autowired private EthProperties ethProperties;
-  //  @RefreshScope
+
+  @RefreshScope
   @Bean
-  public Credentials getCredentials() {
+  public CredentialWrapper getCredentials() {
     Credentials credentials;
     try {
       // read the file and load the wallet
@@ -35,7 +38,7 @@ public class EthConfig {
       log.error("Error reading the wallet file: {}", e.getMessage());
       throw new ServiceException(ErrorCode.INITIALIZATION_FAILED, e.getCause().getMessage());
     }
-    return credentials;
+    return CredentialWrapper.builder().credentials(credentials).build();
   }
 
   @PostConstruct
