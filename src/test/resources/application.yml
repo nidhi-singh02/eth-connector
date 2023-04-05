@@ -1,0 +1,32 @@
+spring:
+  profiles.active: local
+
+management:
+  health.db.enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: refresh
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+springdoc:
+  version: 1.0.0
+  swagger-ui:
+    url: /open-api.yml
+  api-docs:
+    enabled: false
+besu:
+  rpcEndpoints:
+    - http://localhost:8545
+
+  wallet:
+    path: src/main/resources/wallet
+    password: testpassword
+  gasPrice: 0
+  gasLimit: 2147483647
+  client:
+    rest:
+      apikey: xyz
