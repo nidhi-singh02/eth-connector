@@ -10,8 +10,13 @@ import org.web3j.protocol.core.methods.response.Log;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class SmartContractEventWrapper {
+public class SCEventWrapper {
+  /** Event name for the SC event. */
   private String eventName;
+
+  /** Data for the SC event. */
   private String data;
+
+  /** Log for the SC event. */
   private Log log;
 }

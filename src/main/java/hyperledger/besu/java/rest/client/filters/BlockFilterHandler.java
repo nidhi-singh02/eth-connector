@@ -4,18 +4,28 @@ import hyperledger.besu.java.rest.client.config.EthConfig;
 import hyperledger.besu.java.rest.client.service.EventPublishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
+@ConditionalOnProperty(prefix = "events", name = "block", havingValue = "true")
 public class BlockFilterHandler {
+  /** Loads the eth-connector config. */
   @Autowired private EthConfig ethConfig;
 
-  @Autowired private EventPublishService eventPublishServiceImpl;
+  /** Loads the EventPublishService. */
+  @Autowired(required = false)
+  private EventPublishService eventPublishServiceImpl;
 
-  // To receive all new blocks as they are added to the blockchain (the false parameter specifies
-  // that we only want the blocks, not the embedded transactions too):
+  /**
+   * To receive all new blocks as they are added to the blockchain
+   *
+   * <p>(the false parameter specifies
+   *
+   * <p>that we only want the blocks, not the embedded transactions too).
+   */
   @Async
   public void receiveNewlyAddedBlocksOnly() {
     ethConfig
@@ -23,17 +33,16 @@ public class BlockFilterHandler {
         .get(0)
         .blockFlowable(true)
         .doOnError(
-            error ->
-                log.error(
-                    "Error occurred while listening to receiveNewlyAddedBlocksOnly events"
-                        + error.getMessage()))
+            error -> {
+              log.error("Error listening new block" + error.getMessage());
+            })
         .subscribe(
             block -> {
               if (!block.hasError()) {
-                log.info("block event listening for block hash {}", block.getBlock().getHash());
+                log.info("listening for block {}", block.getBlock().getHash());
                 eventPublishServiceImpl.publishEventLogs(block);
               } else {
-                log.error("Error in block {} " + block.getError());
+                log.error("Error in block {} ", block.getError());
               }
             });
   }

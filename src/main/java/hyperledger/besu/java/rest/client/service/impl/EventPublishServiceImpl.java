@@ -1,7 +1,7 @@
 package hyperledger.besu.java.rest.client.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hyperledger.besu.java.rest.client.model.events.SmartContractEventWrapper;
+import hyperledger.besu.java.rest.client.model.events.SCEventWrapper;
 import hyperledger.besu.java.rest.client.service.EventPublishService;
 import java.nio.charset.StandardCharsets;
 import javax.management.OperationsException;
@@ -23,41 +23,88 @@ import org.web3j.protocol.core.methods.response.EthBlock;
 @ConditionalOnProperty("kafka.event-listener.topic")
 public class EventPublishServiceImpl implements EventPublishService {
 
-  private static final String ERROR_MSG = "error-msg";
-  private static final String CONTRACT_ADDRESS = "contract-address";
-  private static final String FUNCTION_NAME = "function-name";
-  public static final String EVENT_TYPE = "event-type";
-  public static final String EVENT_TYPE_ERROR = "error-event";
-  public static final String EVENT_TYPE_LOG = "log-event";
-  public static final String ETH_BLOCK_HASH = "eth-block-hash";
-  public static final String EVENT_NAME = "event-name";
+  /** error msg for kafka header key. */
+  private static final String INCOMING_EVENT_LOG_ERROR_MSG = "error-msg";
+  /** msg for kafka header key - contract-address. */
+  private static final String SMART_CONTRACT_ADDRESS = "contract-address";
 
+  /** msg for kafka header key - function-name. */
+  private static final String SMARTCONTRACT_FUNCTION_NAME = "function-name";
+
+  /** msg for kafka header key - event-type. */
+  public static final String INCOMING_EVENT_LOGGING_TYPE = "event-type";
+
+  /** msg for kafka header key - error-event. */
+  public static final String INCOMING_EVENT_LOGGING_ERROR = "error-event";
+
+  /** msg for kafka header key - log-event. */
+  public static final String LOG_EVENT = "log-event";
+
+  /** msg for kafka header key - eth-block-hash. */
+  public static final String ETH_BLOCK_HASH = "eth-block-hash";
+
+  /** msg for kafka header key - event-name. */
+  public static final String INCOMING_EVENT_LOG_NAME = "event-name";
+
+  /** kafka topic-name. */
   @Value("${kafka.event-listener.topic}")
   private String topicName;
 
+  /** kafka template. */
   @Autowired private KafkaTemplate<String, String> kafkaTemplate;
-  @Autowired private ObjectMapper mapper;
 
+  /** objectMapper. */
+  @Autowired private ObjectMapper objectMapper;
+
+  /**
+   * @param errorMsg contents of the error message
+   * @param smartContractAddress chaincode name in the Fabric
+   * @param functionName function name in a given chaincode.
+   * @param parameters parameters sent to the chaincode
+   * @return
+   */
   @Override
   public boolean publishTransactionFailureEvent(
-      String errorMsg, String contractAddress, String functionName, String parameters) {
+      final String errorMsg,
+      final String smartContractAddress,
+      final String functionName,
+      final String parameters) {
     boolean status = true;
 
     try {
       ProducerRecord<String, String> producerRecord =
           new ProducerRecord<>(topicName, functionName, parameters);
-      producerRecord.headers().add(new RecordHeader(ERROR_MSG, errorMsg.getBytes()));
-      producerRecord.headers().add(new RecordHeader(CONTRACT_ADDRESS, contractAddress.getBytes()));
-      producerRecord.headers().add(new RecordHeader(EVENT_TYPE, EVENT_TYPE_ERROR.getBytes()));
-      producerRecord.headers().add(new RecordHeader(FUNCTION_NAME, functionName.getBytes()));
+      producerRecord
+          .headers()
+          .add(new RecordHeader(INCOMING_EVENT_LOG_ERROR_MSG,
+              errorMsg.getBytes())
+          );
+      producerRecord
+          .headers()
+          .add(new RecordHeader(SMART_CONTRACT_ADDRESS,
+              smartContractAddress.getBytes())
+          );
+      producerRecord
+          .headers()
+          .add(
+              new RecordHeader(
+                  INCOMING_EVENT_LOGGING_TYPE,
+                  INCOMING_EVENT_LOGGING_ERROR.getBytes())
+          );
+      producerRecord
+          .headers()
+          .add(new RecordHeader(SMARTCONTRACT_FUNCTION_NAME,
+              functionName.getBytes())
+          );
 
-      ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(producerRecord);
+      ListenableFuture<SendResult<String, String>> sendResultListenableFuture =
+          kafkaTemplate.send(producerRecord);
 
-      future.addCallback(
+      sendResultListenableFuture.addCallback(
           new ListenableFutureCallback<SendResult<String, String>>() {
 
             @Override
-            public void onSuccess(SendResult<String, String> result) {
+            public void onSuccess(final SendResult<String, String> result) {
               log.info(
                   "Sent message=["
                       + parameters
@@ -67,8 +114,11 @@ public class EventPublishServiceImpl implements EventPublishService {
             }
 
             @Override
-            public void onFailure(Throwable ex) {
-              log.error("Unable to send message=[{}] due to: {}", parameters, ex.getMessage());
+            public void onFailure(final Throwable ex) {
+              log.error(
+                  "Unable to send message=[{}] due to ERROR encountered: {}",
+                  parameters,
+                  ex.getMessage());
             }
           });
 
@@ -80,59 +130,82 @@ public class EventPublishServiceImpl implements EventPublishService {
     return status;
   }
 
+  /**
+   * @param incomingLog
+   * @return true or false value
+   */
   @Override
-  public boolean publishEventLogs(Object eventLog) {
+  public boolean publishEventLogs(final Object incomingLog) {
     boolean status = true;
     ProducerRecord<String, String> producerRecord;
     try {
-      if (eventLog instanceof SmartContractEventWrapper) {
+      if (incomingLog instanceof SCEventWrapper) {
 
         producerRecord =
             new ProducerRecord<>(
                 topicName,
-                mapper.writeValueAsString(((SmartContractEventWrapper) eventLog).getLog()));
+                objectMapper.writeValueAsString(((SCEventWrapper) incomingLog)
+                    .getLog())
+            );
         producerRecord
             .headers()
             .add(
                 new RecordHeader(
-                    CONTRACT_ADDRESS,
-                    ((SmartContractEventWrapper) eventLog).getLog().getAddress().getBytes()));
+                    SMART_CONTRACT_ADDRESS,
+                    ((SCEventWrapper) incomingLog).getLog().getAddress()
+                        .getBytes()));
         producerRecord
             .headers()
             .add(
                 new RecordHeader(
-                    EVENT_NAME, ((SmartContractEventWrapper) eventLog).getEventName().getBytes()));
-      } else if (eventLog instanceof EthBlock) {
-        producerRecord = new ProducerRecord<>(topicName, mapper.writeValueAsString(eventLog));
+                    INCOMING_EVENT_LOG_NAME,
+                    ((SCEventWrapper) incomingLog).getEventName().getBytes()));
+      } else if (incomingLog instanceof EthBlock) {
+        producerRecord =
+            new ProducerRecord<>(topicName, objectMapper
+                .writeValueAsString(incomingLog));
         producerRecord
             .headers()
             .add(
                 new RecordHeader(
                     ETH_BLOCK_HASH,
-                    ((EthBlock) eventLog).getBlock().getHash().getBytes(StandardCharsets.UTF_8)));
+                    ((EthBlock) incomingLog)
+                        .getBlock()
+                        .getHash()
+                        .getBytes(StandardCharsets.UTF_8)));
       } else {
-        throw new OperationsException("Cannot send message for eventLog {}" + eventLog);
+        throw new OperationsException("Error sending incoming event log to "
+            + "topic" + " {}" + incomingLog);
       }
 
-      producerRecord.headers().add(new RecordHeader(EVENT_TYPE, EVENT_TYPE_LOG.getBytes()));
-      ListenableFuture<SendResult<String, String>> future = kafkaTemplate.send(producerRecord);
+      producerRecord
+          .headers()
+          .add(
+              new RecordHeader(
+                  INCOMING_EVENT_LOGGING_TYPE,
+                  LOG_EVENT.getBytes()));
+      ListenableFuture<SendResult<String, String>> listenableFutureForSendResp =
+          kafkaTemplate.send(producerRecord);
 
-      future.addCallback(
+      listenableFutureForSendResp.addCallback(
           new ListenableFutureCallback<SendResult<String, String>>() {
 
             @Override
-            public void onSuccess(SendResult<String, String> result) {
+            public void onSuccess(final SendResult<String, String> result) {
               log.debug(
                   "Sent Log=["
-                      + eventLog
+                      + incomingLog
                       + "] with offset=["
                       + result.getRecordMetadata().offset()
                       + "]");
             }
 
             @Override
-            public void onFailure(Throwable ex) {
-              log.error("Unable to send Log=[{}] due to: {}", eventLog, ex.getMessage());
+            public void onFailure(final Throwable ex) {
+              log.error(
+                  "Unable to send Log=[{}] due to ERROR encountered: {}",
+                  incomingLog,
+                  ex.getMessage());
             }
           });
 
