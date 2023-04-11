@@ -11,14 +11,15 @@ import org.springframework.stereotype.Service;
 @Service
 @ConditionalOnProperty(value = "events.block", havingValue = "true")
 public class BlockEventListener implements Runnable {
-
+  /** Loads the eth-connector config. */
   @Autowired private EthConfig ethConfig;
+
+  /** Loads the block filter service. */
   @Autowired private BlockFilterHandler blockFilterHandler;
 
+  /** todo: Improve the logic to include all nodes from the network. */
   @Override
   public void run() {
-    // TODO: Improve the logic to include all nodes from the network
-    // get events with all transactions data
     blockFilterHandler.receiveNewlyAddedBlocksOnly();
   }
 }

@@ -7,58 +7,70 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.core.DefaultBlockParameter;
 
+/**
+ * This class is for the future scope,
+ *
+ * <p>this is currently not attached to
+ *
+ * <p>the event listeners.
+ */
 @Service
 @Slf4j
-// This class is for the future scope, this is currently not attached to the event listeners
 public class TransactionFilterHandler {
+  /** Loads the eth-connector config. */
   @Autowired private EthConfig ethConfig;
 
-  // To receive all new transactions as they are added to the blockchain:
+  /** To receive all new transactions as they are added to the blockchain. */
   @Async
-  public void receiveAllNewTransaction() {
+  public void receiveNewTxn() {
 
     ethConfig
         .getWeb3jList()
         .get(0)
         .transactionFlowable()
         .doOnError(
-            error ->
-                log.error(
-                    "Error occurred while listening to receiveAllNewTransaction events"
-                        + error.getMessage()))
-        .subscribe(tx -> {});
+            err -> {
+              log.error("Error listening to new txn" + err.getMessage());
+            })
+        .subscribe(
+            tx -> {
+              log.info("Listening to new transactions events");
+            });
   }
 
-  // To receive all pending transactions as they are submitted to the network (i.e. before they have
-  // been grouped into a block together):
+  /** To receive all pending transactions. */
   @Async
-  public void receiveAllPendingTransactions() {
+  public void receivePendingTxn() {
 
     ethConfig
         .getWeb3jList()
         .get(0)
         .pendingTransactionFlowable()
         .doOnError(
-            error ->
-                log.error(
-                    "Error occurred while listening to receiveAllPendingTransactions events"
-                        + error.getMessage()))
-        .subscribe(tx -> {});
+            err -> {
+              log.error("Error listening to pending txn" + err.getMessage());
+            })
+        .subscribe(
+            tx -> {
+              log.info("Listening to pending transactions events");
+            });
   }
 
-  // Replay all blocks to the most current, but with transactions contained within blocks:
+  /** @param startBlock */
   @Async
-  public void replayPastAndFutureTransactions(DefaultBlockParameter startBlock) {
+  public void replayPastAndFutureTxn(final DefaultBlockParameter startBlock) {
 
     ethConfig
         .getWeb3jList()
         .get(0)
         .replayPastAndFutureTransactionsFlowable(startBlock)
         .doOnError(
-            error ->
-                log.error(
-                    "Error occurred while listening to replayPastAndFutureTransactions events"
-                        + error.getMessage()))
-        .subscribe(tx -> {});
+            err -> {
+              log.error("Error in past-future event" + err.getMessage());
+            })
+        .subscribe(
+            tx -> {
+              log.info("Listening to  past and future events");
+            });
   }
 }

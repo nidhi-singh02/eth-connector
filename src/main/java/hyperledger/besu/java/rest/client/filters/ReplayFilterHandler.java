@@ -7,46 +7,63 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.web3j.protocol.core.DefaultBlockParameter;
 
+/**
+ * This class is for the future scope, this is currently not
+ *
+ * <p>attached to the event listeners.
+ */
 @Service
 @Slf4j
-// This class is for the future scope, this is currently not attached to the event listeners
 public class ReplayFilterHandler {
+
+  /** Loads the eth-connector config. */
   @Autowired private EthConfig ethConfig;
 
-  // replay all blocks up to the most current, and provide notification (via the submitted Flowable)
-  // once you've caught up:
+  /**
+   * @param startBlock
+   * @param endBlock
+   * @param fullTxObj
+   * @param asc
+   */
   @Async
   public void replayPastBlocksFlowable(
-      DefaultBlockParameter startBlockNumber,
-      DefaultBlockParameter endBlockNumber,
-      boolean fullTxObjects,
-      boolean ascending) {
+      final DefaultBlockParameter startBlock,
+      final DefaultBlockParameter endBlock,
+      final boolean fullTxObj,
+      final boolean asc) {
     ethConfig
         .getWeb3jList()
         .get(0)
-        .replayPastBlocksFlowable(startBlockNumber, endBlockNumber, fullTxObjects, ascending)
+        .replayPastBlocksFlowable(startBlock, endBlock, fullTxObj, asc)
         .doOnError(
-            error ->
-                log.error(
-                    "Error occurred while listening to replayPastBlocksFlowable events"
-                        + error.getMessage()))
-        .subscribe(block -> {});
+            error -> {
+              log.error("Error listening to past block" + error.getMessage());
+            })
+        .subscribe(
+            block -> {
+              log.info("Listening to past block");
+            });
   }
 
-  // replay all blocks to the most current, then be notified of new subsequent blocks being created:
+  /**
+   * @param sBlk
+   * @param txn
+   */
   @Async
   public void replayPastAndFutureBlocksFlowable(
-      DefaultBlockParameter startBlockNumber, boolean fullTxObjects) {
+      final DefaultBlockParameter sBlk, final boolean txn) {
 
     ethConfig
         .getWeb3jList()
         .get(0)
-        .replayPastAndFutureBlocksFlowable(startBlockNumber, fullTxObjects)
+        .replayPastAndFutureBlocksFlowable(sBlk, txn)
         .doOnError(
-            error ->
-                log.error(
-                    "Error occurred while listening to replayPastAndFutureBlocks events"
-                        + error.getMessage()))
-        .subscribe(block -> {});
+            e -> {
+              log.error("Error in past and future events" + e.getMessage());
+            })
+        .subscribe(
+            block -> {
+              log.info("Listening to past-future block");
+            });
   }
 }

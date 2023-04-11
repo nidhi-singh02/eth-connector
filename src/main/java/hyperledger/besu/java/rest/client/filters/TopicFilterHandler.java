@@ -5,7 +5,7 @@ import hyperledger.besu.java.rest.client.config.EthEventsProperties;
 import hyperledger.besu.java.rest.client.exception.ErrorCode;
 import hyperledger.besu.java.rest.client.exception.InvalidArgumentException;
 import hyperledger.besu.java.rest.client.exception.OperationNotSupported;
-import hyperledger.besu.java.rest.client.model.events.SmartContractEventWrapper;
+import hyperledger.besu.java.rest.client.model.events.SCEventWrapper;
 import hyperledger.besu.java.rest.client.service.EventPublishService;
 import hyperledger.besu.java.rest.client.service.impl.TopicFilterServiceImpl;
 import hyperledger.besu.java.rest.client.utils.SmartContractUtility;
@@ -20,21 +20,28 @@ import org.web3j.protocol.core.methods.response.Log;
 @Service
 @Slf4j
 public class TopicFilterHandler {
+  /** Loads the eth-connector config. */
   @Autowired private EthConfig ethConfig;
 
-  @Autowired private EventPublishService eventPublishServiceImpl;
+  /** Loads the EventPublishService config. */
+  @Autowired(required = false)
+  private EventPublishService eventPublishServiceImpl;
 
-  @Autowired private TopicFilterServiceImpl topicFilterService;
+  /** Loads the TopicFilterServiceImpl config. */
+  @Autowired(required = false)
+  private TopicFilterServiceImpl topicFilterService;
 
+  /** Listens to the Event Logs using EthFilter. */
   @Async
   public void receiveAllEventsByEthFilter() {
     ethConfig
         .getWeb3jList()
         .get(0)
-        .ethLogFlowable(topicFilterService.createEthFilterWithSmartContractAddressList())
+        .ethLogFlowable(topicFilterService.createEthFilterWithSCAddress())
         .doOnError(
-            error ->
-                log.error("Error occurred while listening to log events " + error.getMessage()))
+            error -> {
+              log.error("Error listening to logs " + error.getMessage());
+            })
         .subscribe(
             logs -> {
               log.info("topic event listening {}", logs);
@@ -46,31 +53,40 @@ public class TopicFilterHandler {
             });
   }
 
-  private void createAndSendSmartContractEvents(Log eventLog) {
+  /** @param eventLog */
+  private void createAndSendSmartContractEvents(final Log eventLog) {
     eventLog.getTopics().stream()
         .forEach(
             topic -> {
-              SmartContractEventWrapper smartContractEvent;
+              SCEventWrapper scEvent;
               try {
-                smartContractEvent = createSmartContractEventObject(topic, eventLog);
+                scEvent = createSCEventObj(topic, eventLog);
               } catch (DecoderException e) {
                 throw new InvalidArgumentException(
                     ErrorCode.INVALID_ARGUMENT_FOUND, e.getMessage());
-              } catch (UnsupportedEncodingException e) {
-                throw new OperationNotSupported(ErrorCode.NOT_SUPPORTED, e.getMessage());
+              } catch (UnsupportedEncodingException unsupportedEncExe) {
+                throw new OperationNotSupported(
+                    ErrorCode.NOT_SUPPORTED, unsupportedEncExe.getMessage());
               }
-              log.info("Smart Contract Event pushing to Kafka topic {}", smartContractEvent);
-              eventPublishServiceImpl.publishEventLogs(smartContractEvent);
+              log.info("SC Event pushing to Kafka topic {}", scEvent);
+              eventPublishServiceImpl.publishEventLogs(scEvent);
             });
   }
 
-  private SmartContractEventWrapper createSmartContractEventObject(String topic, Log eventLog)
+  /**
+   * @param topic
+   * @param eLog
+   * @return the smart contract event wrapper object
+   * @throws DecoderException
+   * @throws UnsupportedEncodingException
+   */
+  private SCEventWrapper createSCEventObj(final String topic, final Log eLog)
       throws DecoderException, UnsupportedEncodingException {
 
-    return SmartContractEventWrapper.builder()
-        .eventName(EthEventsProperties.getEventHasStringForSmartContractAddress(topic))
-        .data(SmartContractUtility.convertToStringFromHex(eventLog.getData()))
-        .log(eventLog)
+    return SCEventWrapper.builder()
+        .eventName(EthEventsProperties.getEventHasForSCAddress(topic))
+        .data(SmartContractUtility.convertToStringFromHex(eLog.getData()))
+        .log(eLog)
         .build();
   }
 }
