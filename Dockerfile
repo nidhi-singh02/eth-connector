@@ -16,4 +16,4 @@ ENV spring_config_location=file:///usr/local/config/application.yml
 ENV JAVA_OPTS="$JAVA_OPTS -Xms1024m -Xmx4096m -Dspring.config.location=${spring_config_location}"
 
 
-ENTRYPOINT ["java", "-jar eth-connector-0.0.1-SNAPSHOT.jar $JAVA_OPTS"]
+ENTRYPOINT ["java", "-jar", "eth-connector-0.0.1-SNAPSHOT.jar", "$JAVA_OPTS"]
