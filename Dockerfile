@@ -4,4 +4,16 @@ RUN mkdir /app
 COPY ./target/eth-connector-0.0.1-SNAPSHOT.jar /app
 WORKDIR /app
 
-ENTRYPOINT java -jar eth-connector-0.0.1-SNAPSHOT.jar
+RUN mkdir -p /usr/local/config
+
+RUN groupadd -r appGrp -g 10001  \
+    && useradd -u 10000 -r -g appGrp -m -d /opt/app/ -s /sbin/nologin -c "appGrp user" appGrp \
+    && chown -R 10000:10001 /usr/local/config
+
+USER 10000
+
+ENV spring_config_location=file:///usr/local/config/application.yml
+ENV JAVA_OPTS="$JAVA_OPTS -Xms1024m -Xmx4096m -Dspring.config.location=${spring_config_location}"
+
+
+ENTRYPOINT ["java", "-jar eth-connector-0.0.1-SNAPSHOT.jar $JAVA_OPTS"]
