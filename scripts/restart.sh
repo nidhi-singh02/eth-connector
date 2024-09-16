@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 cd Node-1
 gnome-terminal -- bash -c 'besu --data-path=data --genesis-file=../genesis.json --rpc-http-enabled --rpc-http-api=ETH,NET,QBFT --host-allowlist="*" --rpc-http-cors-origins="all" --rpc-http-host=0.0.0.0 --min-gas-price=0 --miner-enabled=true --miner-coinbase=0x0000000000000000000000000000000000000000 | tee enode.txt'
 

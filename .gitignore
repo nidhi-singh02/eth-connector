@@ -35,3 +35,10 @@ build/
 commands.txt
 docker.sh
 build.sh
+
+
+./contracts
+
+scripts/QBFT-Network
+scripts/enode.txt
+
